@@ -1,5 +1,28 @@
 ﻿# API Manager API
-$Script:ApiManagerApi = "/apimanager/api/v1"
+class ApiManager {
+
+    static [string] $BasePath = "/apimanager/api/v1"
+
+    static [string] Organizations($organizationId) {
+        return [ApiManager]::BasePath + "/organizations/$organizationId"
+    }
+
+    static [string] Environments($organizationId, $environmentsId) {
+        return [ApiManager]::BasePath + "/organizations/$organizationId/environments/$environmentsId"
+    }
+
+    static [string] Apis($organizationId, $environmentsId) {
+        return [ApiManager]::Environments($organizationId, $environmentsId) + "/apis"
+    }
+
+    static [string] Policies($organizationId, $environmentsId, $environmentApiId) {
+        return [ApiManager]::Environments($organizationId, $environmentsId) + "/apis/$environmentApiId/policies"
+    }
+
+    static [string] Alerts($organizationId, $environmentsId, $environmentApiId) {
+        return [ApiManager]::Environments($organizationId, $environmentsId) + "/apis/$environmentApiId/alerts"
+    }
+}
 
 function Get-ApApi {
     [CmdletBinding()]
@@ -17,7 +40,7 @@ function Get-ApApi {
             autodiscoveryApiName      = $AutodiscoveryApiName;
             autodiscoveryInstanceName = $AutodiscoveryInstanceName;
         }
-        $Script:Client.Get("$Script:ApiManagerApi/organizations/$OrganizationId/environments/$EnvironmentId/apis", $params) | Step-Property -propertyName "assets"
+        $Script:Client.Get([ApiManager]::Apis($OrganizationId, $EnvironmentId), $params) | Step-Property -propertyName "assets"
     }
 }
 
@@ -26,10 +49,45 @@ function Get-ApApiInstance {
     param (
         [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
         [Parameter(Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id,
-        [Parameter(Mandatory = $false)][int] $Id
+        [Parameter(Mandatory = $true)][int] $Id
     )
 
     process {
-        $Script:Client.Get("$Script:ApiManagerApi/organizations/$OrganizationId/environments/$EnvironmentId/apis/$Id")
+        $Script:Client.Get([ApiManager]::Apis($OrganizationId, $EnvironmentId) + "/$Id")
     }
 }
+
+function Get-ApApiPolicy {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
+        [Parameter(Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id,
+        [Parameter(Mandatory = $true)][int] $ApiInstanceId
+    )
+
+    process {
+        $Script:Client.Get([ApiManager]::Policies($OrganizationId, $EnvironmentId, $ApiInstanceId))
+    }
+}
+
+function Get-ApApiAlert {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
+        [Parameter(Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id,
+        [Parameter(Mandatory = $true)][int] $ApiInstanceId,
+        [Parameter(Mandatory = $false)][guid] $AlertId
+    )
+
+    process {
+        $Script:Client.Get([ApiManager]::Alerts($OrganizationId, $EnvironmentId, $ApiInstanceId) + "/$AlertId")
+    }
+}
+
+
+Export-ModuleMember -Function @(
+    "Get-ApApi", 
+    "Get-ApApiInstance",
+    "Get-ApApiPolicy", 
+    "Get-ApApiAlert"
+)
