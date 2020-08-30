@@ -85,9 +85,8 @@ function Get-ApApiAlert {
 }
 
 
-Export-ModuleMember -Function @(
-    "Get-ApApi", 
-    "Get-ApApiInstance",
-    "Get-ApApiPolicy", 
-    "Get-ApApiAlert"
-)
+Export-ModuleMember -Function `
+    Get-ApApi, 
+    Get-ApApiInstance,
+    Get-ApApiPolicy, 
+    Get-ApApiAlert

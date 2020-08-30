@@ -96,9 +96,8 @@ function Set-ApRoleGroup {
 }
 
 
-Export-ModuleMember -Function @(
-    "Get-ApBusinessGroup", 
-    "Get-ApEnvironment",
-    "Get-ApRoleGroup", "Set-ApRoleGroup",
-    "Get-ApContext", "Set-ApContext"
-)
+Export-ModuleMember -Function `
+    Get-ApBusinessGroup, 
+    Get-ApEnvironment,
+    Get-ApRoleGroup, Set-ApRoleGroup,
+    Get-ApContext, Set-ApContext
