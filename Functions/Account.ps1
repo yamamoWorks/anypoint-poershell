@@ -1,5 +1,5 @@
 ﻿# Access Management API
-$Script:AccountApi = "$Script:BaseUrl/accounts/api"
+$Script:AccountApi = "/accounts/api"
 
 function Get-ApBusinessGroup {
     [CmdletBinding(DefaultParameterSetName = "Multiple")]
@@ -10,12 +10,12 @@ function Get-ApBusinessGroup {
 
     process {
         if ([bool]$Id) {
-            [RestApi]::Get("$Script:AccountApi/organizations/$Id")
+            $Script:Client.Get("$Script:AccountApi/organizations/$Id")
         }
         else {  
             $orgs = $Script:Context.Account.contributorOfOrganizations          
             if ([bool]$Name) {
-                $orgs | Search-Object { $_.name -eq $Name } -throwIfNotExist ([Messages]::NotExistOrNoPermission -f $Name)
+                $orgs | Where-Object { $_.name -eq $Name }
             }
             else {
                 $orgs
@@ -29,17 +29,18 @@ function Get-ApEnvironment {
     param (
         [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
         [Parameter(ParameterSetName = "Single", Mandatory = $false)][guid] $Id,
+        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][ValidateSet("Production", "Sandbox", "Design")] $Type,
+        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][ValidateSet($true, $false, $null)] $IsProduction,
         [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][string] $Name
     )
 
     process {
-        $envs = [RestApi]::Get("$Script:AccountApi/organizations/$OrganizationId/environments/$Id")
-        if ([bool]$Name) {
-            $envs | Search-Object { $_.name -eq $Name } -throwIfNotExist ([Messages]::NotExistOrNoPermission -f $Name)
+        $params = @{
+            type = "$Type".ToLower();
+            isProduction = $IsProduction;
+            name = $Name;
         }
-        else {
-            $envs
-        }
+        $Script:Client.Get("$Script:AccountApi/organizations/$OrganizationId/environments/$Id", $params) | Step-Property -propertyName "data"
     }
 }
 
@@ -52,9 +53,9 @@ function Get-ApRoleGroup {
     )
 
     process {
-        $roles = [RestApi]::Get("$Script:AccountApi/organizations/$OrganizationId/rolegroups/$Id")
+        $roles = $Script:Client.Get("$Script:AccountApi/organizations/$OrganizationId/rolegroups/$Id") | Step-Property -propertyName "data"
         if ([bool]$Name) {
-            $roles | Search-Object { $_.name -eq $Name } -throwIfNotExist ([Messages]::NotExistOrNoPermission -f $Name)
+            $roles | Where-Object { $_.name -eq $Name }
         }
         else {
             $roles
@@ -73,7 +74,7 @@ function Set-ApRoleGroup {
     process {
         $url = "$Script:AccountApi/organizations/$OrganizationId/rolegroups/$Id"
         if ($PSCmdlet.ShouldProcess($url, "Put")) {
-            [RestApi]::Put($url, $InputObject)
+            $Script:Client.Put($url, $InputObject)
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿# Authentication
-
-function Connect-ApAccount {
+﻿function Connect-ApAccount {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $false)][PSCredential] $Credential,
@@ -20,15 +18,22 @@ function Connect-ApAccount {
                 $loginInfo.username = Read-Host "Username"
                 $loginInfo.password = ConvertToPlainText (Read-Host "Password" -AsSecureString)
             }
-            $token = (Invoke-RestMethod -Method Post -Uri "$Script:BaseUrl/accounts/login" -Body ($loginInfo | ConvertTo-Json) -ContentType "application/json").access_token
+            $token = $Script:Client.Post("/accounts/login", $loginInfo).access_token
         }
 
-        $context = [Context]::new($token)
-        $Script:Context = $context
-        $context.Account = [RestApi]::Get("$Script:BaseUrl/accounts/api/me").user
-        $context.BusinessGroup = $context.Account.contributorOfOrganizations[0]
-        $envs = Get-ApEnvironment -OrganizationId $context.BusinessGroup.id
-        $context.Environment = ($envs | Sort-Object { if ($_.name -eq "Sandbox") { " " } else { $_.name } })[0]
+        $Script:Client.SetAccessToken($token)
+
+        $Script:Context.Account = $Script:Client.Get("/accounts/api/me").user
+
+        $org = $Script:Context.Account.contributorOfOrganizations[0]
+        $activeOrganizationId = $Script:Context.Account.properties.cs_auth.activeOrganizationId
+        if ([bool]$activeOrganizationId) {
+            $org = Get-ApBusinessGroup -Id $activeOrganizationId
+        }
+        $Script:Context.BusinessGroup = $org
+
+        $Script:Context.Environment = (GetDefaultEnvironment $org.id)
+
         Get-ApContext
     }
 }
@@ -39,7 +44,7 @@ function Disconnect-ApAccount {
     )
 
     process {
-        $Script:Context = $null
+        $Script:Client.ClearAccessToken()
     }
 }
 
@@ -58,7 +63,7 @@ function Get-ApContext {
 }
 
 function Set-ApContext {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = "BusinessGroup")]
     param (
         [Parameter(ParameterSetName = "BusinessGroup", Mandatory = $true)]
         [Parameter(ParameterSetName = "Environment", Mandatory = $false)]
@@ -72,9 +77,28 @@ function Set-ApContext {
         if ([bool]$BusinessGroupName) {
             $Script:Context.BusinessGroup = (FirstOrDefaultIfArray (Get-ApBusinessGroup -Name $BusinessGroupName) $null)
         }
+
         if ([bool]$EnvironmentName) {
             $Script:Context.Environment = (FirstOrDefaultIfArray (Get-ApEnvironment -Name $EnvironmentName) $null)
         }
+        else {
+            $Script:Context.Environment = (GetDefaultEnvironment $Script:Context.BusinessGroup.id)
+        }
         Get-ApContext
     }
+}
+
+function GetDefaultEnvironment ([guid]$orgId) {
+    $ev = $null
+    $defaultEnvironmentId = $Script:Context.Account.organizationPreferences.$orgId.defaultEnvironment
+    
+    if ([bool]$defaultEnvironmentId) {
+        $ev = Get-ApEnvironment -OrganizationId $orgId -Id $defaultEnvironmentId
+    }
+
+    if ($null -eq $ev) {
+        $ev = FirstOrDefaultIfArray (Get-ApEnvironment -OrganizationId $orgId | Sort-Object { if ($_.name -eq "Sandbox") { " " } else { $_.name } })
+    }
+
+    return $ev
 }
