@@ -13,11 +13,5 @@ Set-Alias Login-Anypoint Connect-ApAccount
 Set-Alias Logout-Anypoint Disconnect-ApAccount
 
 Export-ModuleMember `
-    -Alias `
-    Login-Anypoint, Logout-Anypoint, `
-    -Function `
-    Connect-ApAccount, Disconnect-ApAccount, `
-    Get-ApBusinessGroup, `
-    Get-ApEnvironment, `
-    Get-ApRoleGroup, Set-ApRoleGroup, `
-    Get-ApContext, Set-ApContext
+    -Alias    Login-Anypoint, Logout-Anypoint `
+    -Function Connect-ApAccount, Disconnect-ApAccount, Get-ApContext, Set-ApContext

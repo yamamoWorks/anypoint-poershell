@@ -1,5 +1,21 @@
 ﻿# Access Management API
-$Script:AccountApi = "/accounts/api"
+class AccessManager {
+
+    static [string] $BasePath = "/accounts/api"
+
+    static [string] Organizations($organizationId) {
+        return [AccessManager]::BasePath + "/organizations/$organizationId"
+    }
+
+    static [string] Environments($organizationId, $environmentsId) {
+        return [AccessManager]::BasePath + "/organizations/$organizationId/environments/$environmentsId"
+    }
+
+    static [string] RoleGroups($organizationId) {
+        return [AccessManager]::Organizations($organizationId) + "/rolegroups"
+    }
+}
+
 
 function Get-ApBusinessGroup {
     [CmdletBinding(DefaultParameterSetName = "Multiple")]
@@ -10,7 +26,7 @@ function Get-ApBusinessGroup {
 
     process {
         if ([bool]$Id) {
-            $Script:Client.Get("$Script:AccountApi/organizations/$Id")
+            $Script:Client.Get([AccessManager]::Organizations($Id))
         }
         else {  
             $orgs = $Script:Context.Account.contributorOfOrganizations          
@@ -36,11 +52,11 @@ function Get-ApEnvironment {
 
     process {
         $params = @{
-            type = "$Type".ToLower();
+            type         = "$Type".ToLower();
             isProduction = $IsProduction;
-            name = $Name;
+            name         = $Name;
         }
-        $Script:Client.Get("$Script:AccountApi/organizations/$OrganizationId/environments/$Id", $params) | Step-Property -propertyName "data"
+        $Script:Client.Get([AccessManager]::Environments($OrganizationId, $Id), $params) | Step-Property -propertyName "data"
     }
 }
 
@@ -53,7 +69,7 @@ function Get-ApRoleGroup {
     )
 
     process {
-        $roles = $Script:Client.Get("$Script:AccountApi/organizations/$OrganizationId/rolegroups/$Id") | Step-Property -propertyName "data"
+        $roles = $Script:Client.Get([AccessManager]::RoleGroups($OrganizationId) + "/$Id") | Step-Property -propertyName "data"
         if ([bool]$Name) {
             $roles | Where-Object { $_.name -eq $Name }
         }
@@ -72,9 +88,17 @@ function Set-ApRoleGroup {
     )
 
     process {
-        $url = "$Script:AccountApi/organizations/$OrganizationId/rolegroups/$Id"
+        $url = [AccessManager]::RoleGroups($OrganizationId) + "/$Id"
         if ($PSCmdlet.ShouldProcess($url, "Put")) {
             $Script:Client.Put($url, $InputObject)
         }
     }
 }
+
+
+Export-ModuleMember -Function @(
+    "Get-ApBusinessGroup", 
+    "Get-ApEnvironment",
+    "Get-ApRoleGroup", "Set-ApRoleGroup",
+    "Get-ApContext", "Set-ApContext"
+)
