@@ -21,4 +21,4 @@ Export-ModuleMember `
     Get-ApEnvironment, `
     Get-ApRoleGroup, Set-ApRoleGroup, `
     Get-ApContext, Set-ApContext, `
-    Get-ApApi
+    Get-ApApi, Get-ApApiInstance

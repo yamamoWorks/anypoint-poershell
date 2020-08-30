@@ -2,14 +2,34 @@
 $Script:ApiManagerApi = "/apimanager/api/v1"
 
 function Get-ApApi {
-    [CmdletBinding(DefaultParameterSetName = "Multiple")]
+    [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Client.BusinessGroup.id,
-        [Parameter(Mandatory = $false)][guid] $EnvironmentId = $Script:Client.Environment.id
+        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
+        [Parameter(Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id,
+        [Parameter(Mandatory = $false)][string] $AssetId,
+        [Parameter(Mandatory = $false)][string] $AutodiscoveryApiName,
+        [Parameter(Mandatory = $false)][string] $AutodiscoveryInstanceName
     )
 
     process {
-        $roles = $Script:Client.Get("$Script:ApiManagerApi/organizations/$OrganizationId/environments/$EnvironmentId/apis") | Step-Property -propertyName "assets"
-        $roles
+        $params = @{
+            assetId                   = $AssetId;
+            autodiscoveryApiName      = $AutodiscoveryApiName;
+            autodiscoveryInstanceName = $AutodiscoveryInstanceName;
+        }
+        $Script:Client.Get("$Script:ApiManagerApi/organizations/$OrganizationId/environments/$EnvironmentId/apis", $params) | Step-Property -propertyName "assets"
+    }
+}
+
+function Get-ApApiInstance {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
+        [Parameter(Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id,
+        [Parameter(Mandatory = $false)][int] $Id
+    )
+
+    process {
+        $Script:Client.Get("$Script:ApiManagerApi/organizations/$OrganizationId/environments/$EnvironmentId/apis/$Id")
     }
 }
