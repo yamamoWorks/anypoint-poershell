@@ -40,7 +40,7 @@ function Get-ApApi {
             autodiscoveryApiName      = $AutodiscoveryApiName;
             autodiscoveryInstanceName = $AutodiscoveryInstanceName;
         }
-        $Script:Client.Get([ApiManager]::Apis($OrganizationId, $EnvironmentId), $params) | Step-Property -propertyName "assets"
+        $Script:Client.Get([ApiManager]::Apis($OrganizationId, $EnvironmentId), $params) | Expand-Property -propertyName "assets"
     }
 }
 
@@ -66,7 +66,7 @@ function Get-ApApiPolicy {
     )
 
     process {
-        $Script:Client.Get([ApiManager]::Policies($OrganizationId, $EnvironmentId, $ApiInstanceId)) | Step-Property -propertyName "policies"
+        $Script:Client.Get([ApiManager]::Policies($OrganizationId, $EnvironmentId, $ApiInstanceId)) | Expand-Property -propertyName "policies"
     }
 }
 

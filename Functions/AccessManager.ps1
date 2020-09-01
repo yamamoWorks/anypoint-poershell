@@ -56,7 +56,7 @@ function Get-ApEnvironment {
             isProduction = $IsProduction;
             name         = $Name;
         }
-        $Script:Client.Get([AccessManager]::Environments($OrganizationId, $EnvironmentId), $params) | Step-Property -propertyName "data"
+        $Script:Client.Get([AccessManager]::Environments($OrganizationId, $EnvironmentId), $params) | Expand-Property -propertyName "data"
     }
 }
 
@@ -69,7 +69,7 @@ function Get-ApRoleGroup {
     )
 
     process {
-        $roles = $Script:Client.Get([AccessManager]::RoleGroups($OrganizationId) + "/$RoleGroupId") | Step-Property -propertyName "data"
+        $roles = $Script:Client.Get([AccessManager]::RoleGroups($OrganizationId) + "/$RoleGroupId") | Expand-Property -propertyName "data"
         if ([bool]$Name) {
             $roles | Where-Object { $_.name -eq $Name }
         }

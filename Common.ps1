@@ -164,7 +164,7 @@ function Search-Object {
     }
 }
 
-function Step-Property {
+function Expand-Property {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)][psobject] $InputObject,
@@ -173,7 +173,7 @@ function Step-Property {
 
     process {
         if ($InputObject | Get-Member -Name $propertyName) {
-            $InputObject.$propertyName
+            $InputObject | Select-Object -ExpandProperty $propertyName
         }
         else {
             $InputObject
