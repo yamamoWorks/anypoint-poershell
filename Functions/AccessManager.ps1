@@ -89,7 +89,7 @@ function Update-ApRoleGroup {
 
     process {
         $url = [AccessManager]::RoleGroups($OrganizationId) + "/$RoleGroupId"
-        if ($PSCmdlet.ShouldProcess($url, "Put")) {
+        if ($PSCmdlet.ShouldProcess((FormatUrlAndBody $url $InputObject), "Put")) {
             $Script:Client.Put($url, $InputObject)
         }
     }
@@ -143,7 +143,7 @@ function New-ApRoleGroup {
         }
 
         $url = [AccessManager]::RoleGroups($OrganizationId)
-        if ($PSCmdlet.ShouldProcess($url, "Post")) {
+        if ($PSCmdlet.ShouldProcess((FormatUrlAndBody $url $object), "Post")) {
             $Script:Client.Post($url, $object)
         }
     }

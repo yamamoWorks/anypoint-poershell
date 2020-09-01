@@ -85,7 +85,7 @@ function Get-ApApiAlert {
 }
 
 function Set-ApApiAlert {
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $true)][int] $ApiInstanceId,
         [Parameter(Mandatory = $true)][guid] $AlertId,
@@ -95,7 +95,10 @@ function Set-ApApiAlert {
     )
 
     process {
-        $Script:Client.Patch([ApiManager]::Alerts($OrganizationId, $EnvironmentId, $ApiInstanceId) + "/$AlertId", $InputObject)
+        $url = [ApiManager]::Alerts($OrganizationId, $EnvironmentId, $ApiInstanceId) + "/$AlertId"
+        if ($PSCmdlet.ShouldProcess((FormatUrlAndBody $url $InputObject), "Put")) {
+            $Script:Client.Patch($url, $InputObject)
+        }
     }
 }
 

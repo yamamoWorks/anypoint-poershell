@@ -180,3 +180,7 @@ function Expand-Property {
         }
     }
 }
+
+function FormatUrlAndBody ($url, $body) {
+    return $url + "`n" + ($body | ConvertTo-Json) + "`n"
+}
