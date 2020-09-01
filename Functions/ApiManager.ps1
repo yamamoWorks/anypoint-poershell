@@ -27,11 +27,11 @@ class ApiManager {
 function Get-ApApi {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
-        [Parameter(Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id,
         [Parameter(Mandatory = $false)][string] $AssetId,
         [Parameter(Mandatory = $false)][string] $AutodiscoveryApiName,
-        [Parameter(Mandatory = $false)][string] $AutodiscoveryInstanceName
+        [Parameter(Mandatory = $false)][string] $AutodiscoveryInstanceName,
+        [Parameter(Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id,
+        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
     )
 
     process {
@@ -47,51 +47,51 @@ function Get-ApApi {
 function Get-ApApiInstance {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
+        [Parameter(Mandatory = $true)][int] $ApiInstanceId,
         [Parameter(Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id,
-        [Parameter(Mandatory = $true)][int] $Id
+        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
     )
 
     process {
-        $Script:Client.Get([ApiManager]::Apis($OrganizationId, $EnvironmentId) + "/$Id")
+        $Script:Client.Get([ApiManager]::Apis($OrganizationId, $EnvironmentId) + "/$ApiInstanceId")
     }
 }
 
 function Get-ApApiPolicy {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
+        [Parameter(Mandatory = $true)][int] $ApiInstanceId,
         [Parameter(Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id,
-        [Parameter(Mandatory = $true)][int] $ApiInstanceId
+        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
     )
 
     process {
-        $Script:Client.Get([ApiManager]::Policies($OrganizationId, $EnvironmentId, $ApiInstanceId))
+        $Script:Client.Get([ApiManager]::Policies($OrganizationId, $EnvironmentId, $ApiInstanceId)) | Step-Property -propertyName "policies"
     }
 }
 
 function Get-ApApiAlert {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
-        [Parameter(Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id,
         [Parameter(Mandatory = $true)][int] $ApiInstanceId,
-        [Parameter(Mandatory = $false)][guid] $Id
+        [Parameter(Mandatory = $false)][guid] $AlertId,
+        [Parameter(Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id,
+        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
     )
 
     process {
-        $Script:Client.Get([ApiManager]::Alerts($OrganizationId, $EnvironmentId, $ApiInstanceId) + "/$Id")
+        $Script:Client.Get([ApiManager]::Alerts($OrganizationId, $EnvironmentId, $ApiInstanceId) + "/$AlertId")
     }
 }
 
 function Set-ApApiAlert {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
-        [Parameter(Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id,
         [Parameter(Mandatory = $true)][int] $ApiInstanceId,
-        [Parameter(Mandatory = $true)][guid] $Id,
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true)][object] $InputObject
+        [Parameter(Mandatory = $true)][guid] $AlertId,
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)][object] $InputObject,
+        [Parameter(Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id,
+        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
     )
 
     process {
@@ -101,7 +101,7 @@ function Set-ApApiAlert {
 
 
 Export-ModuleMember -Function `
-    Get-ApApi, 
-    Get-ApApiInstance,
-    Get-ApApiPolicy, 
+    Get-ApApi, `
+    Get-ApApiInstance, `
+    Get-ApApiPolicy, `
     Get-ApApiAlert, Set-ApApiAlert

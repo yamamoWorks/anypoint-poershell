@@ -28,7 +28,7 @@
         $org = $Script:Context.Account.contributorOfOrganizations[0]
         $activeOrganizationId = $Script:Context.Account.properties.cs_auth.activeOrganizationId
         if ([bool]$activeOrganizationId) {
-            $org = Get-ApBusinessGroup -Id $activeOrganizationId
+            $org = Get-ApBusinessGroup -OrganizationId $activeOrganizationId
         }
         $Script:Context.BusinessGroup = $org
 
@@ -93,7 +93,7 @@ function GetDefaultEnvironment ([guid]$orgId) {
     $defaultEnvironmentId = $Script:Context.Account.organizationPreferences.$orgId.defaultEnvironment
     
     if ([bool]$defaultEnvironmentId) {
-        $ev = Get-ApEnvironment -OrganizationId $orgId -Id $defaultEnvironmentId
+        $ev = Get-ApEnvironment -OrganizationId $orgId -EnvironmentId $defaultEnvironmentId
     }
 
     if ($null -eq $ev) {

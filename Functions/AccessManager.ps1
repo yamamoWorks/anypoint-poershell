@@ -20,13 +20,13 @@ class AccessManager {
 function Get-ApBusinessGroup {
     [CmdletBinding(DefaultParameterSetName = "Multiple")]
     param (
-        [Parameter(ParameterSetName = "Single", Mandatory = $false)][guid] $Id,
+        [Parameter(ParameterSetName = "Single", Mandatory = $false)][guid] $OrganizationId,
         [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][string] $Name
     )
 
     process {
-        if ([bool]$Id) {
-            $Script:Client.Get([AccessManager]::Organizations($Id))
+        if ([bool]$OrganizationId) {
+            $Script:Client.Get([AccessManager]::Organizations($OrganizationId))
         }
         else {  
             $orgs = $Script:Context.Account.contributorOfOrganizations          
@@ -43,11 +43,11 @@ function Get-ApBusinessGroup {
 function Get-ApEnvironment {
     [CmdletBinding(DefaultParameterSetName = "Multiple")]
     param (
-        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
-        [Parameter(ParameterSetName = "Single", Mandatory = $false)][guid] $Id,
+        [Parameter(ParameterSetName = "Single", Mandatory = $false)][guid] $EnvironmentId,
         [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][ValidateSet("Production", "Sandbox", "Design")] $Type,
         [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][ValidateSet($true, $false, $null)] $IsProduction,
-        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][string] $Name
+        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][string] $Name,
+        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
     )
 
     process {
@@ -56,20 +56,20 @@ function Get-ApEnvironment {
             isProduction = $IsProduction;
             name         = $Name;
         }
-        $Script:Client.Get([AccessManager]::Environments($OrganizationId, $Id), $params) | Step-Property -propertyName "data"
+        $Script:Client.Get([AccessManager]::Environments($OrganizationId, $EnvironmentId), $params) | Step-Property -propertyName "data"
     }
 }
 
 function Get-ApRoleGroup {
     [CmdletBinding(DefaultParameterSetName = "Multiple")]
     param (
-        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
-        [Parameter(ParameterSetName = "Single", Mandatory = $false)][guid] $Id,
-        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][string] $Name
+        [Parameter(ParameterSetName = "Single", Mandatory = $false)][guid] $RoleGroupId,
+        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][string] $Name,
+        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
     )
 
     process {
-        $roles = $Script:Client.Get([AccessManager]::RoleGroups($OrganizationId) + "/$Id") | Step-Property -propertyName "data"
+        $roles = $Script:Client.Get([AccessManager]::RoleGroups($OrganizationId) + "/$RoleGroupId") | Step-Property -propertyName "data"
         if ([bool]$Name) {
             $roles | Where-Object { $_.name -eq $Name }
         }
@@ -82,13 +82,13 @@ function Get-ApRoleGroup {
 function Set-ApRoleGroup {
     [CmdletBinding(SupportsShouldProcess)]
     param (
-        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
-        [Parameter(Mandatory = $true)][guid] $Id,
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true)][object] $InputObject
+        [Parameter(Mandatory = $true)][guid] $RoleGroupId,
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)][object] $InputObject,
+        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
     )
 
     process {
-        $url = [AccessManager]::RoleGroups($OrganizationId) + "/$Id"
+        $url = [AccessManager]::RoleGroups($OrganizationId) + "/$RoleGroupId"
         if ($PSCmdlet.ShouldProcess($url, "Put")) {
             $Script:Client.Put($url, $InputObject)
         }
