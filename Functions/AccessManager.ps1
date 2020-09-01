@@ -113,7 +113,7 @@ function Set-ApRoleGroup {
         if ([bool]$Description) {
             $object.description = $Description
         }
-        if ([bool]$ExternalNames) {
+        if ($null -ne $ExternalNames) {
             $object.external_names = $ExternalNames
         }
         $object | Update-ApRoleGroup -RoleGroupId $RoleGroupId -OrganizationId $OrganizationId
@@ -164,8 +164,39 @@ function Remove-ApRoleGroup {
     }
 }
 
+function Add-ApRoleGroupExternalName {
+    [CmdletBinding(SupportsShouldProcess)]
+    param (
+        [Parameter(Mandatory = $true)][guid] $RoleGroupId,
+        [Parameter(Mandatory = $true)][string[]] $ExternalNames,
+        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
+    )
+
+    process {
+        $object = Get-ApRoleGroup -RoleGroupId $RoleGroupId -OrganizationId $OrganizationId
+        $object.external_names += $ExternalNames
+        $object | Update-ApRoleGroup -RoleGroupId $RoleGroupId -OrganizationId $OrganizationId
+    }
+}
+
+function Remove-ApRoleGroupExternalName {
+    [CmdletBinding(SupportsShouldProcess)]
+    param (
+        [Parameter(Mandatory = $true)][guid] $RoleGroupId,
+        [Parameter(Mandatory = $true)][string[]] $ExternalNames,
+        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
+    )
+
+    process {
+        $object = Get-ApRoleGroup -RoleGroupId $RoleGroupId -OrganizationId $OrganizationId
+        $object.external_names = $object.external_names | Where-Object { $ExternalNames -notcontains $_ }
+        $object | Update-ApRoleGroup -RoleGroupId $RoleGroupId -OrganizationId $OrganizationId
+    }
+}
+
 Export-ModuleMember -Function `
     Get-ApBusinessGroup, `
     Get-ApEnvironment, `
     Get-ApRoleGroup, Set-ApRoleGroup, Update-ApRoleGroup, New-ApRoleGroup, Remove-ApRoleGroup, `
-    Get-ApContext, Set-ApContext
+    Get-ApContext, Set-ApContext, `
+    Add-ApRoleGroupExternalName, Remove-ApRoleGroupExternalName
