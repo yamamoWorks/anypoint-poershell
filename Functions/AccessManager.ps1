@@ -79,7 +79,7 @@ function Get-ApRoleGroup {
     }
 }
 
-function Set-ApRoleGroup {
+function Update-ApRoleGroup {
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $true)][guid] $RoleGroupId,
@@ -92,6 +92,31 @@ function Set-ApRoleGroup {
         if ($PSCmdlet.ShouldProcess($url, "Put")) {
             $Script:Client.Put($url, $InputObject)
         }
+    }
+}
+
+function Set-ApRoleGroup {
+    [CmdletBinding(SupportsShouldProcess)]
+    param (
+        [Parameter(Mandatory = $true)][guid] $RoleGroupId,
+        [Parameter(Mandatory = $false)][string] $Name,
+        [Parameter(Mandatory = $false)][string] $Description,
+        [Parameter(Mandatory = $false)][string[]] $ExternalNames,
+        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
+    )
+
+    process {
+        $object = Get-ApRoleGroup -RoleGroupId $RoleGroupId -OrganizationId $OrganizationId
+        if ([bool]$Name) {
+            $object.name = $Name
+        }
+        if ([bool]$Description) {
+            $object.description = $Description
+        }
+        if ([bool]$ExternalNames) {
+            $object.external_names = $ExternalNames
+        }
+        $object | Update-ApRoleGroup -RoleGroupId $RoleGroupId -OrganizationId $OrganizationId
     }
 }
 
@@ -142,5 +167,5 @@ function Remove-ApRoleGroup {
 Export-ModuleMember -Function `
     Get-ApBusinessGroup, `
     Get-ApEnvironment, `
-    Get-ApRoleGroup, Set-ApRoleGroup, New-ApRoleGroup, Remove-ApRoleGroup, `
+    Get-ApRoleGroup, Set-ApRoleGroup, Update-ApRoleGroup, New-ApRoleGroup, Remove-ApRoleGroup, `
     Get-ApContext, Set-ApContext

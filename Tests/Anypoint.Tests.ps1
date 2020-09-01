@@ -90,29 +90,34 @@ Describe "Access Manager" {
             $actual.description | Should -BeExactly $expected.description
             $actual.external_names | Sort-Object | Should -BeExactly ($expected.external_names | Sort-Object)
         }
-        It "Set-ApRoleGroup" {
+        It "Update-ApRoleGroup" {
             $expected = Get-ApRoleGroup -Name "$Script:PREFIX Role01";
             $expected.name += " Edit"
             $expected.description += " Edit"
             $expected.external_names += "external_name_003"
-            $upd = ($expected | Set-ApRoleGroup -RoleGroupId $expected.role_group_id)
+            $upd = ($expected | Update-ApRoleGroup -RoleGroupId $expected.role_group_id)
             $actual = Get-ApRoleGroup -RoleGroupId $upd.role_group_id
             $actual.name | Should -BeExactly $expected.name
             $actual.description | Should -BeExactly $expected.description
             $actual.external_names | Sort-Object | Should -BeExactly ($expected.external_names | Sort-Object)
         }
-        It "Set-ApRoleGroup - external_names" {
+        It "Set-ApRoleGroup" {
             $expected = Get-ApRoleGroup -Name "$Script:PREFIX Role02";
-            $expected.external_names = $expected.external_names | Select-Object -First 1
-            $upd = ($expected | Set-ApRoleGroup -RoleGroupId $expected.role_group_id)
-            $actual = Get-ApRoleGroup -RoleGroupId $upd.role_group_id
-            $actual.external_names | Sort-Object | Should -BeExactly ($expected.external_names | Sort-Object)
+            $expected.name += " Edit"
+            $expected.description += " Edit"
+            $expected.external_names += "external_name_003"
+            Set-ApRoleGroup -RoleGroupId $expected.role_group_id -Name $expected.name
+            (Get-ApRoleGroup -RoleGroupId $expected.role_group_id).name | Should -BeExactly $expected.name
+            Set-ApRoleGroup -RoleGroupId $expected.role_group_id -Description $expected.description
+            (Get-ApRoleGroup -RoleGroupId $expected.role_group_id).description | Should -BeExactly $expected.description
+            Set-ApRoleGroup -RoleGroupId $expected.role_group_id -ExternalNames $expected.external_names
+            (Get-ApRoleGroup -RoleGroupId $expected.role_group_id).external_names | Sort-Object | Should -BeExactly ($expected.external_names | Sort-Object)
         }
         It "Remove-ApRoleGroup" {
             $rg01 = Get-ApRoleGroup -Name "$Script:PREFIX Role01 Edit";
             Remove-ApRoleGroup $rg01.role_group_id
             Get-ApRoleGroup -Name $rg01.name | Should -BeNullOrEmpty
-            $rg02 = Get-ApRoleGroup -Name "$Script:PREFIX Role02";
+            $rg02 = Get-ApRoleGroup -Name "$Script:PREFIX Role02 Edit";
             Remove-ApRoleGroup $rg02.role_group_id
             Get-ApRoleGroup -Name $rg02.name | Should -BeNullOrEmpty
         }
