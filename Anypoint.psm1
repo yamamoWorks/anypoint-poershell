@@ -1,7 +1,7 @@
 ﻿Set-StrictMode -Version 1.0
 $ErrorActionPreference = "Stop"
 
-. .\Common.ps1
+. $PSScriptRoot\Common.ps1
 
 $Script:Context = [Context]::new()
 $Script:Client = [AnypointClilent]::new("https://anypoint.mulesoft.com")
