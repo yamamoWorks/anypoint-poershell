@@ -83,6 +83,14 @@ class AnypointClilent {
         return $this.InvokeMethodInternal("Put", $url, $params, $body)
     }
 
+    [psobject] Patch([string]$url, [psobject]$body) {
+        return $this.InvokeMethodInternal("Patch", $url, $null, $body)
+    }
+
+    [psobject] Patch([string]$url, [hashtable]$params, [psobject]$body) {
+        return $this.InvokeMethodInternal("Patch", $url, $params, $body)
+    }
+
     [psobject] InvokeMethodInternal([Microsoft.PowerShell.Commands.WebRequestMethod]$method, [string]$path, [hashtable]$params, [psobject]$body) {
         $headers = $this.CreateHeaders()
         

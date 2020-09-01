@@ -76,11 +76,26 @@ function Get-ApApiAlert {
         [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
         [Parameter(Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id,
         [Parameter(Mandatory = $true)][int] $ApiInstanceId,
-        [Parameter(Mandatory = $false)][guid] $AlertId
+        [Parameter(Mandatory = $false)][guid] $Id
     )
 
     process {
-        $Script:Client.Get([ApiManager]::Alerts($OrganizationId, $EnvironmentId, $ApiInstanceId) + "/$AlertId")
+        $Script:Client.Get([ApiManager]::Alerts($OrganizationId, $EnvironmentId, $ApiInstanceId) + "/$Id")
+    }
+}
+
+function Set-ApApiAlert {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
+        [Parameter(Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id,
+        [Parameter(Mandatory = $true)][int] $ApiInstanceId,
+        [Parameter(Mandatory = $true)][guid] $Id,
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)][object] $InputObject
+    )
+
+    process {
+        $Script:Client.Patch([ApiManager]::Alerts($OrganizationId, $EnvironmentId, $ApiInstanceId) + "/$AlertId", $InputObject)
     }
 }
 
@@ -89,4 +104,4 @@ Export-ModuleMember -Function `
     Get-ApApi, 
     Get-ApApiInstance,
     Get-ApApiPolicy, 
-    Get-ApApiAlert
+    Get-ApApiAlert, Set-ApApiAlert
