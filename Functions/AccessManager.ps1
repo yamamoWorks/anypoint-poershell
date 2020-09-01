@@ -95,9 +95,52 @@ function Set-ApRoleGroup {
     }
 }
 
+function New-ApRoleGroup {
+    [CmdletBinding(SupportsShouldProcess)]
+    param (
+        [Parameter(ParameterSetName = "Object", Mandatory = $true, ValueFromPipeline = $true)][object] $InputObject,
+        [Parameter(ParameterSetName = "Params", Mandatory = $true)][string] $Name,
+        [Parameter(ParameterSetName = "Params", Mandatory = $false)][string] $Description,
+        [Parameter(ParameterSetName = "Params", Mandatory = $false)][string[]] $ExternalNames,
+        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
+    )
+
+    process {
+        if ([bool]$InputObject) {
+            $object = $InputObject
+        }
+        else {
+            $object = @{ 
+                name           = $Name;
+                description    = $Description;
+                external_names = $ExternalNames
+            }
+        }
+
+        $url = [AccessManager]::RoleGroups($OrganizationId)
+        if ($PSCmdlet.ShouldProcess($url, "Post")) {
+            $Script:Client.Post($url, $object)
+        }
+    }
+}
+
+function Remove-ApRoleGroup {
+    [CmdletBinding(SupportsShouldProcess)]
+    param (
+        [Parameter(Mandatory = $true)][guid] $RoleGroupId,
+        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
+    )
+
+    process {
+        $url = [AccessManager]::RoleGroups($OrganizationId) + "/$RoleGroupId"
+        if ($PSCmdlet.ShouldProcess($url, "Delete")) {
+            $Script:Client.Delete($url)
+        }
+    }
+}
 
 Export-ModuleMember -Function `
-    Get-ApBusinessGroup, 
-    Get-ApEnvironment,
-    Get-ApRoleGroup, Set-ApRoleGroup,
+    Get-ApBusinessGroup, `
+    Get-ApEnvironment, `
+    Get-ApRoleGroup, Set-ApRoleGroup, New-ApRoleGroup, Remove-ApRoleGroup, `
     Get-ApContext, Set-ApContext
