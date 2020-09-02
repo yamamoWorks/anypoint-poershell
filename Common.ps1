@@ -42,19 +42,23 @@ class AnypointClilent {
     }
 
     [psobject] Get([string]$url) {
-        return $this.InvokeMethodWithJsonInternal("Get", $url, $null, $null)
+        return $this.InvokeMethodWithJsonInternal("Get", $url, $null, $null, $null)
     }
 
     [psobject] Get([string]$url, [hashtable]$params) {
-        return $this.InvokeMethodWithJsonInternal("Get", $url, $params, $null)
+        return $this.InvokeMethodWithJsonInternal("Get", $url, $params, $null, $null)
     }
 
     [psobject] Delete([string]$url) {
-        return $this.InvokeMethodWithJsonInternal("Delete", $url, $null, $null)
+        return $this.InvokeMethodWithJsonInternal("Delete", $url, $null, $null, $null)
+    }
+
+    [psobject] Delete([string]$url, [hashtable]$headers) {
+        return $this.InvokeMethodWithJsonInternal("Delete", $url, $null, $null, $headers)
     }
     
     [psobject] Post([string]$url, [psobject]$body) {
-        return $this.InvokeMethodWithJsonInternal("Post", $url, $null, $body)
+        return $this.InvokeMethodWithJsonInternal("Post", $url, $null, $body, $null)
     }
     
     [psobject] PostMultipartFormData([string]$url, [hashtable]$body) {
@@ -62,14 +66,34 @@ class AnypointClilent {
     }
        
     [psobject] Put([string]$url, [psobject]$body) {
-        return $this.InvokeMethodWithJsonInternal("Put", $url, $null, $body)
+        return $this.InvokeMethodWithJsonInternal("Put", $url, $null, $body, $null)
     }
         
     [psobject] Patch([string]$url, [psobject]$body) {
-        return $this.InvokeMethodWithJsonInternal("Patch", $url, $null, $body)
+        return $this.InvokeMethodWithJsonInternal("Patch", $url, $null, $body, $null)
     }
 
-    [psobject] InvokeMethodWithJsonInternal([Microsoft.PowerShell.Commands.WebRequestMethod]$method, [string]$path, [hashtable]$params, [psobject]$body) {
+    [psobject] InvokeMethodWithJsonInternal([Microsoft.PowerShell.Commands.WebRequestMethod]$method, [string]$path, [hashtable]$params, [psobject]$body, [hashtable]$additionalHeaders) {
+
+        $queryParameters = [System.Web.HttpUtility]::ParseQueryString([String]::Empty)
+        foreach ($key in $params.Keys) {
+            $value = $params[$key]
+            if ([bool]$value) {
+                $value | Where-Object { $queryParameters.Add($key, $_) }
+            }
+        }
+
+        $url = ($this.BaseUrl + $path + "?" + $queryParameters.ToString()).TrimEnd("?")
+        Write-Verbose $url
+
+        $headers = @{ "Content-Type" = "application/json" }
+        if ([bool]$additionalHeaders) {
+            $headers += $additionalHeaders
+        }
+        if ([bool]$this.AccessToken) {
+            $headers["Authorization"] = ("Bearer " + $this.AccessToken);
+        }
+        Write-Verbose (FormatHeader $headers)
 
         $data = $null
         if ([bool]$body) {
@@ -78,29 +102,23 @@ class AnypointClilent {
             $data = [Text.Encoding]::UTF8.GetBytes($json)
         }
 
-        $headers = @{ "Content-Type" = "application/json" }
-        if ([bool]$this.AccessToken) {
-            $headers["Authorization"] = ("Bearer " + $this.AccessToken);
-        }
-
-        $queryParameters = [System.Web.HttpUtility]::ParseQueryString([String]::Empty)
-        foreach ($key in $params.Keys) {
-            $value = $params[$key]
-            if ([bool]$value) {
-                $queryParameters.Add($key, $value)
-            }
-        }
-
-        $url = ($this.BaseUrl + $path + "?" + $queryParameters.ToString()).TrimEnd("?")
-
         return Invoke-RestMethod -Method $method -Uri $url -Headers $headers -Body $data
     }
 
     [psobject] InvokeMethodWithMultipartFormDataInternal([Microsoft.PowerShell.Commands.WebRequestMethod]$method, [string]$path, [hashtable]$body) {
-
+        
         $boundary = "-----FormBoundary-" + [guid]::NewGuid().ToString("N")
-        $data = New-Object System.Net.Http.MultipartFormDataContent($boundary)
 
+        $url = ($this.BaseUrl + $path)
+        Write-Verbose $url
+
+        $headers = @{ "Content-Type" = "multipart/form-data; boundary=$boundary" }
+        if ([bool]$this.AccessToken) {
+            $headers["Authorization"] = ("Bearer " + $this.AccessToken);
+        }
+        Write-Verbose (FormatHeader $headers)
+
+        $data = New-Object System.Net.Http.MultipartFormDataContent($boundary)
         foreach ($key in $body.Keys) {
             $value = $body[$key]
             if ([bool]$value) {
@@ -111,25 +129,19 @@ class AnypointClilent {
                     $fileName = $file.Name
                     $fileContent.Headers.Add('Content-Disposition', "form-data; name=`"$key`"; filename=`"$fileName`"");
                     $data.Add($fileContent)
+                    Write-Verbose "[MultipartFormData] $key=$value"
                 }
                 else {
-                    Write-Verbose "$key=$value"
                     $content = New-Object System.Net.Http.StringContent("$value")
                     $content.Headers.Add('Content-Disposition', "form-data; name=`"$key`"");
                     $content.Headers.Remove('Content-Type') | Out-Null;
                     $data.Add($content)
+                    Write-Verbose "[MultipartFormData] $key=$value"
                 }
             }
         }
         $postDataFile = [System.IO.Path]::GetTempFileName()
         [System.IO.File]::WriteAllBytes($postDataFile, $data.ReadAsByteArrayAsync().Result)
-
-        $headers = @{ "Content-Type" = "multipart/form-data; boundary=$boundary" }
-        if ([bool]$this.AccessToken) {
-            $headers["Authorization"] = ("Bearer " + $this.AccessToken);
-        }
-
-        $url = ($this.BaseUrl + $path)
 
         try {
             return Invoke-RestMethod -Method $method -Uri $url -Headers $headers -InFile $postDataFile
@@ -240,4 +252,8 @@ function Add-DynamicParameter {
 
 function FormatUrlAndBody ($url, $body) {
     return $url + "`n" + ($body | ConvertTo-Json) + "`n"
+}
+
+function FormatHeader ([hashtable]$headers) {
+    return "HEADER`n" + (($headers.Keys | ForEach-Object { "  " + $_ + ": " + $headers[$_] }) -join "`n")
 }
