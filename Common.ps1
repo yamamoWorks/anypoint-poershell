@@ -181,6 +181,34 @@ function Expand-Property {
     }
 }
 
+function New-DynamicParameterCollection {
+    [CmdletBinding()]
+    param (
+    )
+    
+    process {
+        New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
+    }
+}
+
+function Add-DynamicParameter {
+    [CmdletBinding()]
+    param (
+        [Parameter(ValueFromPipeline = $true)][System.Management.Automation.RuntimeDefinedParameterDictionary] $ParameterDictionary,
+        [Parameter(Mandatory = $true)][string] $Name,
+        [Parameter(Mandatory = $false)][switch] $Mandatory
+    )
+    
+    process {
+        $attribute = New-Object System.Management.Automation.ParameterAttribute
+        $attribute.Mandatory = $true
+        $collection = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
+        $collection.Add($attribute)
+        $param = New-Object System.Management.Automation.RuntimeDefinedParameter($name, [string], $collection)
+        $ParameterDictionary.Add($Name, $param)        
+    }
+}
+
 function FormatUrlAndBody ($url, $body) {
     return $url + "`n" + ($body | ConvertTo-Json) + "`n"
 }
