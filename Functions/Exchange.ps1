@@ -23,19 +23,14 @@ function New-ApExchangeAsset {
         $dynamicParams = New-DynamicParameterCollection
         $helpMode = -not[bool]$PSBoundParameters.Classifier
 
-        # AssetLink
-        # if ($helpMode -or $Classifier -in "WSDL", "HTTP") {
-        #     $dynamicParams | Add-DynamicParameter -Name "AssetLink" -Mandatory
-        # }
-
         # ApiVersion
         if ($helpMode -or $Classifier -in "RAML", "OAS", "WSDL", "HTTP") {
             $dynamicParams | Add-DynamicParameter -Name "ApiVersion" -Mandatory
         }
 
         # Main, AssetFilePath
-        if ($helpMode -or $Classifier -in "RAML", "RAML-Fragment", "OAS", "WSDL") {
-            $dynamicParams | Add-DynamicParameter -Name "Main" -Mandatory
+        if ($helpMode -or $Classifier -in "RAML", "OAS", "WSDL", "RAML-Fragment") {
+            $dynamicParams | Add-DynamicParameter -Name "Main"
             $dynamicParams | Add-DynamicParameter -Name "AssetFilePath" -Mandatory
         }
 
@@ -43,34 +38,27 @@ function New-ApExchangeAsset {
     }
 
     begin {
-        $AssetLink = $PSBoundParameters.AssetLink
         $ApiVersion = $PSBoundParameters.ApiVersion
         $Main = $PSBoundParameters.Main
         $AssetFilePath = $PSBoundParameters.AssetFilePath
     }
 
     process {
-        if ($Classifier -eq "HTTP") {
-            $multiParts = @{
-                organizationId = $OrganizationId
-                groupId        = $GroupId
-                assetId        = $AssetId
-                version        = $Version
-                name           = $Name
-                classifier     = $Classifier.ToString()
-                assetLink      = $AssetLink
-                apiVersion     = $ApiVersion
-                main           = $Main
-                asset          = if ([bool]$AssetFilePath) { Get-Item -Path $AssetFilePath }
-            }
-            $Script:Client.PostMultipartFormData([Exchange]::Assets(), $multiParts)
+        $multiParts = @{
+            organizationId = $OrganizationId
+            groupId        = $GroupId
+            assetId        = $AssetId
+            version        = $Version
+            name           = $Name
+            classifier     = $Classifier.ToLower()
+            apiVersion     = $ApiVersion
+            main           = $Main
+            asset          = if ([bool]$AssetFilePath) { Get-Item -Path $AssetFilePath }
         }
-        else {
-            throw "Not Implemented"
-        }
+
+        $Script:Client.PostMultipartFormData([Exchange]::Assets(), $multiParts)
     }
 }
-
 
 
 Export-ModuleMember -Function `

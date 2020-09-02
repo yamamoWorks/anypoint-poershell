@@ -83,21 +83,22 @@ class AnypointClilent {
             $headers["Authorization"] = ("Bearer " + $this.AccessToken);
         }
 
-        $url = ($this.BaseUrl + $path)
-        
-        if ([bool]$params) {
-            $queryParameter = (($params.Keys | Where-Object { [bool]$params[$_] } | ForEach-Object { $_ + "=" + $params[$_] }) -join "&")
-            if ([bool]$queryParameter) {
-                $url += ("?" + $queryParameter)
+        $queryParameters = [System.Web.HttpUtility]::ParseQueryString([String]::Empty)
+        foreach ($key in $params.Keys) {
+            $value = $params[$key]
+            if ([bool]$value) {
+                $queryParameters.Add($key, $value)
             }
         }
+
+        $url = ($this.BaseUrl + $path + "?" + $queryParameters.ToString()).TrimEnd("?")
 
         return Invoke-RestMethod -Method $method -Uri $url -Headers $headers -Body $data
     }
 
     [psobject] InvokeMethodWithMultipartFormDataInternal([Microsoft.PowerShell.Commands.WebRequestMethod]$method, [string]$path, [hashtable]$body) {
 
-        $boundary = "-----FormBoundary=" + [guid]::NewGuid().ToString("N")
+        $boundary = "-----FormBoundary-" + [guid]::NewGuid().ToString("N")
         $data = New-Object System.Net.Http.MultipartFormDataContent($boundary)
 
         foreach ($key in $body.Keys) {
@@ -134,6 +135,7 @@ class AnypointClilent {
             return Invoke-RestMethod -Method $method -Uri $url -Headers $headers -InFile $postDataFile
         }
         finally {
+            $data.Dispose()
             Remove-Item -Path $postDataFile -Force | Out-Null
         }
     }
@@ -228,7 +230,7 @@ function Add-DynamicParameter {
     
     process {
         $attribute = New-Object System.Management.Automation.ParameterAttribute
-        $attribute.Mandatory = $true
+        $attribute.Mandatory = $Mandatory
         $collection = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
         $collection.Add($attribute)
         $param = New-Object System.Management.Automation.RuntimeDefinedParameter($name, [string], $collection)

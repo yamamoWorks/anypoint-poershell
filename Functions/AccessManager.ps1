@@ -44,7 +44,7 @@ function Get-ApEnvironment {
     [CmdletBinding(DefaultParameterSetName = "Multiple")]
     param (
         [Parameter(ParameterSetName = "Single", Mandatory = $false)][guid] $EnvironmentId,
-        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][ValidateSet("Production", "Sandbox", "Design")] $Type,
+        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][ValidateSet("Production", "Sandbox", "Design")][string] $Type,
         [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][ValidateSet($true, $false, $null)] $IsProduction,
         [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][string] $Name,
         [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
@@ -52,7 +52,7 @@ function Get-ApEnvironment {
 
     process {
         $params = @{
-            type         = "$Type".ToLower();
+            type         = $Type.ToLower();
             isProduction = $IsProduction;
             name         = $Name;
         }
