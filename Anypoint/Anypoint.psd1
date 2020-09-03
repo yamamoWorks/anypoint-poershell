@@ -30,7 +30,7 @@
     Copyright         = '(c) yamamo. All rights reserved.'
 
     # Description of the functionality provided by this module
-    Description       = 'PowerShell functions for MuleSoft Anypoint Platform'
+    Description       = 'PowerShell cmdlet for MuleSoft Anypoint Platform'
 
     # Minimum version of the PowerShell engine required by this module
     PowerShellVersion = '5.0'
@@ -124,7 +124,7 @@
             ProjectUri = 'https://github.com/yamamoWorks/anypoint-poershell'
 
             # A URL to an icon representing this module.
-            # IconUri = ''
+            IconUri = 'https://github.com/yamamoWorks/anypoint-poershell/raw/master/logo.png'
 
             # ReleaseNotes of this module
             # ReleaseNotes = ''
@@ -148,4 +148,3 @@
     # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
     DefaultCommandPrefix = 'Ap'
 }
-

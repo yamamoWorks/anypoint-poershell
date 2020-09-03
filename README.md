@@ -1,4 +1,4 @@
 # anypoint-poershell
 <img src=".\logo.png" width="64px" />
 
-Powershell functions for MuleSoft Anypoint Platform.
+Powershell cmdlet for MuleSoft Anypoint Platform.
