@@ -12,7 +12,7 @@ class Exchange {
     }
 }
 
-function New-ApExchangeAsset {
+function New-ExchangeAsset {
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $true)][string] $AssetId,
@@ -67,7 +67,7 @@ function New-ApExchangeAsset {
     }
 }
 
-function Get-ApExchangeAsset {
+function Get-ExchangeAsset {
     [CmdletBinding()]
     param (
         [Parameter(ParameterSetName = "Single", Mandatory = $false)][guid] $GroupId = $Script:Context.BusinessGroup.id,
@@ -97,7 +97,7 @@ function Get-ApExchangeAsset {
     }    
 }
 
-function Search-ApExchangeAsset {
+function Search-ExchangeAsset {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $false)][string] $Search,
@@ -122,7 +122,7 @@ function Search-ApExchangeAsset {
     }    
 }
 
-function Remove-ApExchangeAsset {
+function Remove-ExchangeAsset {
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $true)][string] $AssetId,
@@ -145,4 +145,4 @@ function Remove-ApExchangeAsset {
 
 
 Export-ModuleMember -Function `
-    New-ApExchangeAsset, Get-ApExchangeAsset, Search-ApExchangeAsset, Remove-ApExchangeAsset
+    New-ExchangeAsset, Get-ExchangeAsset, Search-ExchangeAsset, Remove-ExchangeAsset

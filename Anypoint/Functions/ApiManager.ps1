@@ -24,7 +24,7 @@ class ApiManager {
     }
 }
 
-function Get-ApApi {
+function Get-Api {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $false)][string] $AssetId,
@@ -44,7 +44,7 @@ function Get-ApApi {
     }
 }
 
-function Get-ApApiInstance {
+function Get-ApiInstance {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)][int] $ApiInstanceId,
@@ -57,7 +57,7 @@ function Get-ApApiInstance {
     }
 }
 
-function Get-ApApiPolicy {
+function Get-ApiPolicy {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)][int] $ApiInstanceId,
@@ -70,7 +70,7 @@ function Get-ApApiPolicy {
     }
 }
 
-function Get-ApApiAlert {
+function Get-ApiAlert {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)][int] $ApiInstanceId,
@@ -84,7 +84,7 @@ function Get-ApApiAlert {
     }
 }
 
-function Set-ApApiAlert {
+function Set-ApiAlert {
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $true)][int] $ApiInstanceId,
@@ -104,7 +104,7 @@ function Set-ApApiAlert {
 
 
 Export-ModuleMember -Function `
-    Get-ApApi, `
-    Get-ApApiInstance, `
-    Get-ApApiPolicy, `
-    Get-ApApiAlert, Set-ApApiAlert
+    Get-Api, `
+    Get-ApiInstance, `
+    Get-ApiPolicy, `
+    Get-ApiAlert, Set-ApiAlert

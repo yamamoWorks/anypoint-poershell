@@ -1,4 +1,4 @@
-﻿function Connect-ApAccount {
+﻿function Connect-Account {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $false)][PSCredential] $Credential,
@@ -28,17 +28,17 @@
         $org = $Script:Context.Account.contributorOfOrganizations[0]
         $activeOrganizationId = $Script:Context.Account.properties.cs_auth.activeOrganizationId
         if ([bool]$activeOrganizationId) {
-            $org = Get-ApBusinessGroup -OrganizationId $activeOrganizationId
+            $org = Get-BusinessGroup -OrganizationId $activeOrganizationId
         }
         $Script:Context.BusinessGroup = $org
 
         $Script:Context.Environment = (GetDefaultEnvironment $org.id)
 
-        Get-ApContext
+        Get-Context
     }
 }
 
-function Disconnect-ApAccount {
+function Disconnect-Account {
     [CmdletBinding()]
     param (
     )
@@ -48,7 +48,7 @@ function Disconnect-ApAccount {
     }
 }
 
-function Get-ApContext {
+function Get-Context {
     [CmdletBinding()]
     param (
     )
@@ -62,7 +62,7 @@ function Get-ApContext {
     }
 }
 
-function Set-ApContext {
+function Set-Context {
     [CmdletBinding(DefaultParameterSetName = "BusinessGroup")]
     param (
         [Parameter(ParameterSetName = "BusinessGroup", Mandatory = $true)]
@@ -75,16 +75,16 @@ function Set-ApContext {
 
     process {
         if ([bool]$BusinessGroupName) {
-            $Script:Context.BusinessGroup = (FirstOrDefaultIfArray (Get-ApBusinessGroup -Name $BusinessGroupName) $null)
+            $Script:Context.BusinessGroup = (FirstOrDefaultIfArray (Get-BusinessGroup -Name $BusinessGroupName) $null)
         }
 
         if ([bool]$EnvironmentName) {
-            $Script:Context.Environment = (FirstOrDefaultIfArray (Get-ApEnvironment -Name $EnvironmentName) $null)
+            $Script:Context.Environment = (FirstOrDefaultIfArray (Get-Environment -Name $EnvironmentName) $null)
         }
         else {
             $Script:Context.Environment = (GetDefaultEnvironment $Script:Context.BusinessGroup.id)
         }
-        Get-ApContext
+        Get-Context
     }
 }
 
@@ -93,20 +93,20 @@ function GetDefaultEnvironment ([guid]$orgId) {
     $defaultEnvironmentId = $Script:Context.Account.organizationPreferences.$orgId.defaultEnvironment
     
     if ([bool]$defaultEnvironmentId) {
-        $ev = Get-ApEnvironment -OrganizationId $orgId -EnvironmentId $defaultEnvironmentId
+        $ev = Get-Environment -OrganizationId $orgId -EnvironmentId $defaultEnvironmentId
     }
 
     if ($null -eq $ev) {
-        $ev = FirstOrDefaultIfArray (Get-ApEnvironment -OrganizationId $orgId | Sort-Object { if ($_.name -eq "Sandbox") { " " } else { $_.name } })
+        $ev = FirstOrDefaultIfArray (Get-Environment -OrganizationId $orgId | Sort-Object { if ($_.name -eq "Sandbox") { " " } else { $_.name } })
     }
 
     return $ev
 }
 
 
-Set-Alias Login-Anypoint Connect-ApAccount
-Set-Alias Logout-Anypoint Disconnect-ApAccount
+Set-Alias Login-Account Connect-Account
+Set-Alias Logout-Account Disconnect-Account
 
 Export-ModuleMember `
-    -Alias    Login-Anypoint, Logout-Anypoint `
-    -Function Connect-ApAccount, Disconnect-ApAccount, Get-ApContext, Set-ApContext
+    -Alias    Login-Account, Logout-Account `
+    -Function Connect-Account, Disconnect-Account, Get-Context, Set-Context

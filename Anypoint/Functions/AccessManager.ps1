@@ -17,7 +17,7 @@ class AccessManager {
 }
 
 
-function Get-ApBusinessGroup {
+function Get-BusinessGroup {
     [CmdletBinding(DefaultParameterSetName = "Multiple")]
     param (
         [Parameter(ParameterSetName = "Single", Mandatory = $false)][guid] $OrganizationId,
@@ -40,7 +40,7 @@ function Get-ApBusinessGroup {
     }
 }
 
-function Get-ApEnvironment {
+function Get-Environment {
     [CmdletBinding(DefaultParameterSetName = "Multiple")]
     param (
         [Parameter(ParameterSetName = "Single", Mandatory = $false)][guid] $EnvironmentId,
@@ -60,7 +60,7 @@ function Get-ApEnvironment {
     }
 }
 
-function Get-ApRoleGroup {
+function Get-RoleGroup {
     [CmdletBinding(DefaultParameterSetName = "Multiple")]
     param (
         [Parameter(ParameterSetName = "Single", Mandatory = $false)][guid] $RoleGroupId,
@@ -79,7 +79,7 @@ function Get-ApRoleGroup {
     }
 }
 
-function Update-ApRoleGroup {
+function Update-RoleGroup {
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $true)][guid] $RoleGroupId,
@@ -95,7 +95,7 @@ function Update-ApRoleGroup {
     }
 }
 
-function Set-ApRoleGroup {
+function Set-RoleGroup {
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $true)][guid] $RoleGroupId,
@@ -106,7 +106,7 @@ function Set-ApRoleGroup {
     )
 
     process {
-        $object = Get-ApRoleGroup -RoleGroupId $RoleGroupId -OrganizationId $OrganizationId
+        $object = Get-RoleGroup -RoleGroupId $RoleGroupId -OrganizationId $OrganizationId
         if ([bool]$Name) {
             $object.name = $Name
         }
@@ -116,11 +116,11 @@ function Set-ApRoleGroup {
         if ($null -ne $ExternalNames) {
             $object.external_names = $ExternalNames
         }
-        $object | Update-ApRoleGroup -RoleGroupId $RoleGroupId -OrganizationId $OrganizationId
+        $object | Update-RoleGroup -RoleGroupId $RoleGroupId -OrganizationId $OrganizationId
     }
 }
 
-function New-ApRoleGroup {
+function New-RoleGroup {
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(ParameterSetName = "Object", Mandatory = $true, ValueFromPipeline = $true)][object] $InputObject,
@@ -149,7 +149,7 @@ function New-ApRoleGroup {
     }
 }
 
-function Remove-ApRoleGroup {
+function Remove-RoleGroup {
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $true)][guid] $RoleGroupId,
@@ -164,7 +164,7 @@ function Remove-ApRoleGroup {
     }
 }
 
-function Add-ApRoleGroupExternalName {
+function Add-RoleGroupExternalName {
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $true)][guid] $RoleGroupId,
@@ -173,13 +173,13 @@ function Add-ApRoleGroupExternalName {
     )
 
     process {
-        $object = Get-ApRoleGroup -RoleGroupId $RoleGroupId -OrganizationId $OrganizationId
+        $object = Get-RoleGroup -RoleGroupId $RoleGroupId -OrganizationId $OrganizationId
         $object.external_names += $ExternalNames
-        $object | Update-ApRoleGroup -RoleGroupId $RoleGroupId -OrganizationId $OrganizationId
+        $object | Update-RoleGroup -RoleGroupId $RoleGroupId -OrganizationId $OrganizationId
     }
 }
 
-function Remove-ApRoleGroupExternalName {
+function Remove-RoleGroupExternalName {
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $true)][guid] $RoleGroupId,
@@ -188,15 +188,15 @@ function Remove-ApRoleGroupExternalName {
     )
 
     process {
-        $object = Get-ApRoleGroup -RoleGroupId $RoleGroupId -OrganizationId $OrganizationId
+        $object = Get-RoleGroup -RoleGroupId $RoleGroupId -OrganizationId $OrganizationId
         $object.external_names = $object.external_names | Where-Object { $ExternalNames -notcontains $_ }
-        $object | Update-ApRoleGroup -RoleGroupId $RoleGroupId -OrganizationId $OrganizationId
+        $object | Update-RoleGroup -RoleGroupId $RoleGroupId -OrganizationId $OrganizationId
     }
 }
 
 Export-ModuleMember -Function `
-    Get-ApBusinessGroup, `
-    Get-ApEnvironment, `
-    Get-ApRoleGroup, Set-ApRoleGroup, Update-ApRoleGroup, New-ApRoleGroup, Remove-ApRoleGroup, `
-    Get-ApContext, Set-ApContext, `
-    Add-ApRoleGroupExternalName, Remove-ApRoleGroupExternalName
+    Get-BusinessGroup, `
+    Get-Environment, `
+    Get-RoleGroup, Set-RoleGroup, Update-RoleGroup, New-RoleGroup, Remove-RoleGroup, `
+    Get-Context, Set-Context, `
+    Add-RoleGroupExternalName, Remove-RoleGroupExternalName

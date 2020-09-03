@@ -1,6 +1,8 @@
 ﻿Set-StrictMode -Version 1.0
 $ErrorActionPreference = "Stop"
 
+Add-Type -AssemblyName System.Web
+
 . $PSScriptRoot\Common.ps1
 
 $Script:Context = [Context]::new()
