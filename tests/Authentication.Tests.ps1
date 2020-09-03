@@ -1,7 +1,7 @@
 $VerbosePreference="Continue"
  
 $root = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
-Import-Module "$root\Anypoint\Anypoint.psm1" -Force
+Import-Module "$root\src\Anypoint\Anypoint.psm1" -Force
 
 $Script:PREFIX = "ANYPOINT_POWERSHELL_TEST"
 

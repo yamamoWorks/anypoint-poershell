@@ -46,6 +46,6 @@ Login-ApAccount -Credential $credential
 
 
 <!-- References -->
-[icon]: Documentation/icon_48.png
+[icon]: docs/icon_48.png
 [Ap]: https://img.shields.io/powershellgallery/v/Anypoint.svg?style=flat&label=Anypoint&color=blue
 [ApGallery]: https://www.powershellgallery.com/packages/Anypoint/
