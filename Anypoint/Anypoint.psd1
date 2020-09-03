@@ -115,7 +115,7 @@
         PSData = @{
 
             # Tags applied to this module. These help with module discovery in online galleries.
-            Tags = @("Anypoint", "Anypoint Platform", "MuleSoft")
+            Tags = @("Anypoint", "Mule", "MuleSoft")
 
             # A URL to the license for this module.
             LicenseUri = 'https://github.com/yamamoWorks/anypoint-poershell/blob/master/LICENSE'
