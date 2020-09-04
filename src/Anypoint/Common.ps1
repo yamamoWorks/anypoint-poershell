@@ -106,9 +106,8 @@ class AnypointClilent {
             $data = [Text.Encoding]::UTF8.GetBytes($json)
         }
 
-        $ResponseHeaders = $null
-        $result = Invoke-RestMethod -Method $method -Uri $url -Headers $headers -Body $data -ResponseHeadersVariable "ResponseHeaders"
-        Write-Verbose ("Response Headers`n" + (FormatHeader $ResponseHeaders))
+        $result = Invoke-RestMethod -Method $method -Uri $url -Headers $headers -Body $data
+        Write-Verbose ($result | ConvertTo-Json)
         return $result
     }
 
@@ -151,7 +150,9 @@ class AnypointClilent {
         [System.IO.File]::WriteAllBytes($postDataFile, $data.ReadAsByteArrayAsync().Result)
 
         try {
-            return Invoke-RestMethod -Method $method -Uri $url -Headers $headers -InFile $postDataFile
+            $result = Invoke-RestMethod -Method $method -Uri $url -Headers $headers -InFile $postDataFile
+            Write-Verbose ($result | ConvertTo-Json)
+            return $result
         }
         finally {
             $data.Dispose()
