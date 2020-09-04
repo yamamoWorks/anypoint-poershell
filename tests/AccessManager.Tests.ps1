@@ -1,4 +1,4 @@
-$VerbosePreference="Continue"
+$VerbosePreference = "Continue"
 
 $root = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
 Import-Module "$root\src\Anypoint\Anypoint.psm1" -Force
@@ -92,8 +92,8 @@ Describe "RoleGroup CRUD" {
     It "Set-RoleGroup" {
         $original = Get-RoleGroup -RoleGroupId $Script:role02_id
         $expected = @{
-            name = $original.name + " Edit";
-            description = $original.description + " Edit";
+            name           = $original.name + " Edit";
+            description    = $original.description + " Edit";
             external_names = $original.external_names += "external_names_003"
         }
 
@@ -139,5 +139,156 @@ Describe "RoleGroup CRUD" {
         $rg02 = Get-RoleGroup -RoleGroupId $Script:role02_id
         Remove-RoleGroup $rg02.role_group_id
         Get-RoleGroup -Name $rg02.name | Should -BeNullOrEmpty
+    }
+}
+
+Describe "User" {
+    BeforeAll {
+        if ($Script:Password -eq $null) {
+            $Script:Password = Read-Host "Password of user to create" -AsSecureString
+        }
+    }
+    BeforeEach {
+        Start-Sleep -Milliseconds 3000
+    }
+    It "New-User - Params 1" {
+        $date = Get-Date -Format 'yyMMdd'
+        $time = Get-Date -Format 'HHmmssfff'
+        $expected = @{
+            username = "apuser-$date$time"
+            password = $password
+        }
+
+        $actual = New-User `
+            -Username $expected.username `
+            -Password $expected.password
+
+        $actual.username    | Should -BeExactly $expected.username
+        $actual.firstName   | Should -BeExactly "unknown"
+        $actual.lastName    | Should -BeExactly "unknown"
+        $actual.email       | Should -BeExactly "unknown"
+        $actual.phoneNumber | Should -BeExactly "111-111-1111"
+    }
+    It "New-User - Params 2" {
+        $date = Get-Date -Format 'yyMMdd'
+        $time = Get-Date -Format 'HHmmssfff'
+        $expected = @{
+            username    = "apuser-$date$time"
+            firstName   = "fn-$time"
+            lastName    = "ln-$date"
+            phoneNumber = "00-$time"
+            email       = "$time@$date.email"
+            password    = $password
+        }
+
+        $actual = New-User `
+            -Username    $expected.username `
+            -Password    $expected.password `
+            -FirstName   $expected.firstName `
+            -LastName    $expected.lastName `
+            -Email       $expected.email `
+            -PhoneNumber $expected.phoneNumber
+
+        $actual.username    | Should -BeExactly $expected.username
+        $actual.firstName   | Should -BeExactly $expected.firstName
+        $actual.lastName    | Should -BeExactly $expected.lastName
+        $actual.phoneNumber | Should -BeExactly $expected.phoneNumber
+        $actual.email       | Should -BeExactly $expected.email
+        $actual.phoneNumber | Should -BeExactly $expected.phoneNumber
+    }
+    It "New-User - Pipeline 1" {
+        $date = Get-Date -Format 'yyMMdd'
+        $time = Get-Date -Format 'HHmmssfff'
+        $expected = @{
+            username = "apuser-$date$time"
+            password = (ConvertToPlainText $password)
+        }
+
+        $actual = $expected | New-User
+
+        $actual.username    | Should -BeExactly $expected.username
+        $actual.firstName   | Should -BeExactly "unknown"
+        $actual.lastName    | Should -BeExactly "unknown"
+        $actual.email       | Should -BeExactly "unknown"
+        $actual.phoneNumber | Should -BeExactly "111-111-1111"
+    }
+    It "New-User - Pipeline 2" {
+        $date = Get-Date -Format 'yyMMdd'
+        $time = Get-Date -Format 'HHmmssfff'
+        $expected = @{
+            username    = "apuser-$date$time"
+            firstName   = "fn-$time"
+            lastName    = "fn-$date"
+            phoneNumber = "00-$time"
+            email       = "$time@$date.email"
+            password    = (ConvertToPlainText $password)
+        }
+
+        $actual = $expected | New-User
+
+        $actual.username    | Should -BeExactly $expected.username
+        $actual.firstName   | Should -BeExactly $expected.firstName
+        $actual.lastName    | Should -BeExactly $expected.lastName
+        $actual.phoneNumber | Should -BeExactly $expected.phoneNumber
+        $actual.email       | Should -BeExactly $expected.email
+    }
+    It "Set-User - Params" {
+        $user = Get-User | Where-Object { $_.username -like "apuser-*" } | Select-Object -First 1
+        $expected = @{
+            firstName   = ("UPD_" + $user.firstName)
+            lastName    = ("UPD_" + $user.lastName)
+            phoneNumber = ("9-" + $user.phoneNumber)
+            email       = ("9-" + $user.email)
+            enabled     = -not $user.enabled
+            properties  = @{ xxx_config = @{ aaa = 100; bbb = "002" } }
+        }
+
+        $actual = Set-User `
+            -UserId      $user.id `
+            -FirstName   $expected.firstName `
+            -LastName    $expected.lastName `
+            -Email       $expected.email `
+            -PhoneNumber $expected.phoneNumber `
+            -Enabled     $expected.enabled `
+            -Properties  $expected.properties
+
+        $actual.firstName   | Should -BeExactly $expected.firstName
+        $actual.lastName    | Should -BeExactly $expected.lastName
+        $actual.phoneNumber | Should -BeExactly $expected.phoneNumber
+        $actual.email       | Should -BeExactly $expected.email
+        $actual.enabled     | Should -BeExactly $expected.enabled
+        $actual.properties.xxx_config.aaa | Should -BeExactly $expected.properties.xxx_config.aaa
+        $actual.properties.xxx_config.bbb | Should -BeExactly $expected.properties.xxx_config.bbb
+    }
+    It "Set-User - Pipeline" {
+        $user = Get-User | Where-Object { $_.username -like "apuser-*" } | Select-Object -Skip 1 -First 1
+        $expected = @{
+            firstName   = ("UPD_" + $user.firstName)
+            lastName    = ("UPD_" + $user.lastName)
+            phoneNumber = ("9-" + $user.phoneNumber)
+            email       = ("9-" + $user.email)
+            enabled     = -not $user.enabled
+            properties  = @{ xxx_config = @{ aaa = 100; bbb = "002" } }
+        }
+
+        $actual = $expected | Set-User -UserId $user.id
+
+        $actual.firstName   | Should -BeExactly $expected.firstName
+        $actual.lastName    | Should -BeExactly $expected.lastName
+        $actual.phoneNumber | Should -BeExactly $expected.phoneNumber
+        $actual.email       | Should -BeExactly $expected.email
+        $actual.enabled     | Should -BeExactly $expected.enabled
+        $actual.properties.xxx_config.aaa | Should -BeExactly $expected.properties.xxx_config.aaa
+        $actual.properties.xxx_config.bbb | Should -BeExactly $expected.properties.xxx_config.bbb
+    }
+    It "Remove-User" {
+        $users = Get-User -Limit 500 | Where-Object { $_.username -like "apuser-*" }
+
+        Remove-User -UserId $users[0].id
+        { Get-User -UserId $users[0].id } | Should -Throw
+
+        Remove-User -UserId ($users | Select-Object -Skip 1 | ForEach-Object { $_.id })
+        $actual = Get-User -Limit 500 | Where-Object { $_.username -like "apuser-*" }
+        $actual.Count | Should -Be 0
     }
 }

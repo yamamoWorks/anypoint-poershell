@@ -56,7 +56,11 @@ class AnypointClilent {
     [psobject] Delete([string]$url, [hashtable]$headers) {
         return $this.InvokeMethodWithJsonInternal("Delete", $url, $null, $null, $headers)
     }
-    
+
+    [psobject] Delete([string]$url, [hashtable]$headers, [psobject]$body) {
+        return $this.InvokeMethodWithJsonInternal("Delete", $url, $null, $body, $headers)
+    }
+
     [psobject] Post([string]$url, [psobject]$body) {
         return $this.InvokeMethodWithJsonInternal("Post", $url, $null, $body, $null)
     }
@@ -93,7 +97,7 @@ class AnypointClilent {
         if ([bool]$this.AccessToken) {
             $headers["Authorization"] = ("Bearer " + $this.AccessToken);
         }
-        Write-Verbose (FormatHeader $headers)
+        Write-Verbose ("Headers`n" + (FormatHeader $headers))
 
         $data = $null
         if ([bool]$body) {
@@ -102,7 +106,10 @@ class AnypointClilent {
             $data = [Text.Encoding]::UTF8.GetBytes($json)
         }
 
-        return Invoke-RestMethod -Method $method -Uri $url -Headers $headers -Body $data
+        $ResponseHeaders = $null
+        $result = Invoke-RestMethod -Method $method -Uri $url -Headers $headers -Body $data -ResponseHeadersVariable "ResponseHeaders"
+        Write-Verbose ("Response Headers`n" + (FormatHeader $ResponseHeaders))
+        return $result
     }
 
     [psobject] InvokeMethodWithMultipartFormDataInternal([Microsoft.PowerShell.Commands.WebRequestMethod]$method, [string]$path, [hashtable]$body) {
@@ -116,7 +123,7 @@ class AnypointClilent {
         if ([bool]$this.AccessToken) {
             $headers["Authorization"] = ("Bearer " + $this.AccessToken);
         }
-        Write-Verbose (FormatHeader $headers)
+        Write-Verbose ("Headers`n" + (FormatHeader $headers))
 
         $data = New-Object System.Net.Http.MultipartFormDataContent($boundary)
         foreach ($key in $body.Keys) {
@@ -255,5 +262,24 @@ function FormatUrlAndBody ($url, $body) {
 }
 
 function FormatHeader ([hashtable]$headers) {
-    return "HEADER`n" + (($headers.Keys | ForEach-Object { "  " + $_ + ": " + $headers[$_] }) -join "`n")
+    return (($headers.Keys | ForEach-Object { "  " + $_ + ": " + $headers[$_] }) -join "`n")
+}
+
+function ConvertDictionayToHashtable() {
+    param (
+        [object] $Dictionay,
+        [string[]] $Target
+    )
+
+    $keys = $Target | Where-Object { $_ -iin $Dictionay.Keys }
+
+    $hash = @{}
+    foreach ($key in $keys) {
+        $value = $Dictionay[$key]
+        if ($value -is [securestring]) {
+            $value = (ConvertToPlainText $value)
+        }                
+        $hash[$key] = $value
+    }
+    $hash
 }

@@ -12,7 +12,7 @@
     RootModule        = 'Anypoint.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.0.2'
+    ModuleVersion     = '0.0.3'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -30,7 +30,7 @@
     Copyright         = '(c) yamamo. All rights reserved.'
 
     # Description of the functionality provided by this module
-    Description       = 'PowerShell cmdlet for MuleSoft Anypoint Platform'
+    Description       = 'PowerShell cmdlet for MuleSoft Anypoint Platform (unofficial)'
 
     # Minimum version of the PowerShell engine required by this module
     PowerShellVersion = '5.0'
@@ -80,6 +80,7 @@
         "Get-RoleGroup", "Set-RoleGroup", "Update-RoleGroup", "New-RoleGroup", "Remove-RoleGroup",
         "Get-Context", "Set-Context",
         "Add-RoleGroupExternalName", "Remove-RoleGroupExternalName",
+        "Get-User", "New-User", "Set-User", "Remove-User"
         
         # ApiManager
         "Get-Api",

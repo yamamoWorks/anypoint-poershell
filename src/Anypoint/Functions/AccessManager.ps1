@@ -14,13 +14,17 @@ class AccessManager {
     static [string] RoleGroups($organizationId) {
         return [AccessManager]::Organizations($organizationId) + "/rolegroups"
     }
+
+    static [string] Users($organizationId) {
+        return [AccessManager]::Organizations($organizationId) + "/users"
+    }
 }
 
 
 function Get-BusinessGroup {
     [CmdletBinding(DefaultParameterSetName = "Multiple")]
     param (
-        [Parameter(ParameterSetName = "Single", Mandatory = $false)][guid] $OrganizationId,
+        [Parameter(ParameterSetName = "Single", Mandatory = $true)][guid] $OrganizationId,
         [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][string] $Name
     )
 
@@ -43,7 +47,7 @@ function Get-BusinessGroup {
 function Get-Environment {
     [CmdletBinding(DefaultParameterSetName = "Multiple")]
     param (
-        [Parameter(ParameterSetName = "Single", Mandatory = $false)][guid] $EnvironmentId,
+        [Parameter(ParameterSetName = "Single", Mandatory = $true)][guid] $EnvironmentId,
         [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][ValidateSet("Production", "Sandbox", "Design")][string] $Type,
         [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][ValidateSet($true, $false, $null)] $IsProduction,
         [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][string] $Name,
@@ -63,7 +67,7 @@ function Get-Environment {
 function Get-RoleGroup {
     [CmdletBinding(DefaultParameterSetName = "Multiple")]
     param (
-        [Parameter(ParameterSetName = "Single", Mandatory = $false)][guid] $RoleGroupId,
+        [Parameter(ParameterSetName = "Single", Mandatory = $true)][guid] $RoleGroupId,
         [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][string] $Name,
         [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
     )
@@ -123,7 +127,7 @@ function Set-RoleGroup {
 function New-RoleGroup {
     [CmdletBinding(SupportsShouldProcess)]
     param (
-        [Parameter(ParameterSetName = "Object", Mandatory = $true, ValueFromPipeline = $true)][object] $InputObject,
+        [Parameter(ParameterSetName = "Pipeline", Mandatory = $true, ValueFromPipeline = $true)][object] $InputObject,
         [Parameter(ParameterSetName = "Params", Mandatory = $true)][string] $Name,
         [Parameter(ParameterSetName = "Params", Mandatory = $false)][string] $Description,
         [Parameter(ParameterSetName = "Params", Mandatory = $false)][string[]] $ExternalNames,
@@ -136,8 +140,8 @@ function New-RoleGroup {
         }
         else {
             $object = @{ 
-                name           = $Name;
-                description    = $Description;
+                name           = $Name
+                description    = $Description
                 external_names = $ExternalNames
             }
         }
@@ -194,9 +198,113 @@ function Remove-RoleGroupExternalName {
     }
 }
 
+function Get-User {
+    [CmdletBinding(DefaultParameterSetName = "Multiple")]
+    param (
+        [Parameter(ParameterSetName = "Single", Mandatory = $true)][guid] $UserId,
+        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][ValidateSet("Host", "Proxy", "All")][string] $Type,
+        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
+        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][ValidateRange(0, [int]::MaxValue)][int] $Offset = 0,
+        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][ValidateRange(0, 500)][int] $Limit = 25
+    )
+    
+    process {
+        $params = @{
+            type   = $Type.ToLower()
+            offset = $PSBoundParameters["Offset"]
+            limit  = $PSBoundParameters["Limit"]
+        }
+        $Script:Client.Get([AccessManager]::Users($OrganizationId) + "/$UserId", $params) | Expand-Property -propertyName "data"
+    }    
+}
+
+function New-User {
+    [CmdletBinding(SupportsShouldProcess)]
+    param (
+        [Parameter(ParameterSetName = "Pipeline", Mandatory = $true, ValueFromPipeline = $true)][object] $InputObject,
+        [Parameter(ParameterSetName = "Params", Mandatory = $true)][string] $Username,
+        [Parameter(ParameterSetName = "Params", Mandatory = $false)][string] $FirstName,
+        [Parameter(ParameterSetName = "Params", Mandatory = $false)][string] $LastName,
+        [Parameter(ParameterSetName = "Params", Mandatory = $false)][string] $Email,
+        [Parameter(ParameterSetName = "Params", Mandatory = $false)][string] $PhoneNumber,
+        [Parameter(ParameterSetName = "Params", Mandatory = $true)][securestring] $Password,
+        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
+    )
+    
+    process {
+        if ([bool]$InputObject) {
+            $object = $InputObject
+        }
+        else {
+            $object = ConvertDictionayToHashtable $PSBoundParameters `
+                -Target "username", "firstName", "lastName", "email", "phoneNumber", "password"
+        }
+
+        $url = [AccessManager]::Users($OrganizationId)
+        if ($PSCmdlet.ShouldProcess((FormatUrlAndBody $url $object), "Post")) {
+            $Script:Client.Post($url, $object)
+        }
+    }
+    
+}
+
+function Set-User {
+    [CmdletBinding(SupportsShouldProcess)]
+    param (
+        [Parameter(Mandatory = $true)][guid] $UserId,
+        [Parameter(ParameterSetName = "Pipeline", Mandatory = $true, ValueFromPipeline = $true)][object] $InputObject,
+        [Parameter(ParameterSetName = "Params", Mandatory = $false)][string] $FirstName,
+        [Parameter(ParameterSetName = "Params", Mandatory = $false)][string] $LastName,
+        [Parameter(ParameterSetName = "Params", Mandatory = $false)][string] $Email,
+        [Parameter(ParameterSetName = "Params", Mandatory = $false)][string] $PhoneNumber,
+        [Parameter(ParameterSetName = "Params", Mandatory = $false)][bool] $Enabled,
+        [Parameter(ParameterSetName = "Params", Mandatory = $false)][object] $Properties,
+        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
+    )
+    
+    process {
+        if ([bool]$InputObject) {
+            $object = $InputObject
+        }
+        else {
+            $object = ConvertDictionayToHashtable $PSBoundParameters `
+                -Target "firstName", "lastName", "email", "phoneNumber", "enabled", "properties"
+        }
+
+        $url = [AccessManager]::Users($OrganizationId) + "/$UserId"
+        if ($PSCmdlet.ShouldProcess((FormatUrlAndBody $url $object), "Put")) {
+            $Script:Client.Put($url, $object)
+        }
+    }    
+}
+
+function Remove-User {
+    [CmdletBinding(SupportsShouldProcess)]
+    param (
+        [Parameter(Mandatory = $true)][guid[]] $UserId,
+        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
+    )
+    
+    process {
+        if ($UserId.Count -eq 1) {
+            $url = [AccessManager]::Users($OrganizationId) + "/$UserId"
+            if ($PSCmdlet.ShouldProcess($url, "Delete")) {
+                $Script:Client.Delete($url)
+            }
+        }
+        else {
+            $url = [AccessManager]::Users($OrganizationId)
+            if ($PSCmdlet.ShouldProcess((FormatUrlAndBody $url $UserId.Guid), "Delete")) {
+                $Script:Client.Delete($url, $null, $UserId.Guid)
+            }
+        }
+    }    
+}
+
 Export-ModuleMember -Function `
     Get-BusinessGroup, `
     Get-Environment, `
     Get-RoleGroup, Set-RoleGroup, Update-RoleGroup, New-RoleGroup, Remove-RoleGroup, `
     Get-Context, Set-Context, `
-    Add-RoleGroupExternalName, Remove-RoleGroupExternalName
+    Add-RoleGroupExternalName, Remove-RoleGroupExternalName, `
+    Get-User, New-User, Set-User, Remove-User
