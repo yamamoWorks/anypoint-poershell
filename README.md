@@ -1,6 +1,7 @@
-# ![icon] Anypoint PowerShell
+# ![ApIcon] Anypoint PowerShell
 Powershell cmdlet for MuleSoft Anypoint Platform.
 
+![ExampleGif]
 
 ## Modules
 Below is a table containing our Anypoint PowerShell rollup module.
@@ -46,6 +47,7 @@ Login-ApAccount -Credential $credential
 
 
 <!-- References -->
-[icon]: docs/icon_48.png
+[ApIcon]: docs/icon_48.png
+[ExampleGif]: docs/example.gif
 [Ap]: https://img.shields.io/powershellgallery/v/Anypoint.svg?style=flat&label=Anypoint&color=blue
 [ApGallery]: https://www.powershellgallery.com/packages/Anypoint/
