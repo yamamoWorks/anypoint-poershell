@@ -12,7 +12,7 @@
     RootModule        = 'Anypoint.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.0.1'
+    ModuleVersion     = '0.0.2'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -85,7 +85,7 @@
         "Get-Api",
         "Get-ApiInstance",
         "Get-ApiPolicy",
-        "Get-ApiAlert", "Set-ApiAlert",
+        "Get-ApiAlert", "Update-ApiAlert",
         
         # Exchange
         "New-ExchangeAsset", "Get-ExchangeAsset", "Search-ExchangeAsset", "Remove-ExchangeAsset"
@@ -118,13 +118,13 @@
             Tags = @("Anypoint", "Mule", "MuleSoft")
 
             # A URL to the license for this module.
-            LicenseUri = 'https://github.com/yamamoWorks/anypoint-poershell/blob/master/LICENSE'
+            LicenseUri = 'https://github.com/yamamoWorks/anypoint-powershell/blob/master/LICENSE'
 
             # A URL to the main website for this project.
-            ProjectUri = 'https://github.com/yamamoWorks/anypoint-poershell'
+            ProjectUri = 'https://github.com/yamamoWorks/anypoint-powershell'
 
             # A URL to an icon representing this module.
-            IconUri = 'https://github.com/yamamoWorks/anypoint-poershell/raw/master/logo.png'
+            IconUri = 'https://raw.githubusercontent.com/yamamoWorks/anypoint-powershell/master/docs/icon_256.png'
 
             # ReleaseNotes of this module
             # ReleaseNotes = ''

@@ -84,7 +84,7 @@ function Get-ApiAlert {
     }
 }
 
-function Set-ApiAlert {
+function Update-ApiAlert {
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $true)][int] $ApiInstanceId,
@@ -107,4 +107,4 @@ Export-ModuleMember -Function `
     Get-Api, `
     Get-ApiInstance, `
     Get-ApiPolicy, `
-    Get-ApiAlert, Set-ApiAlert
+    Get-ApiAlert, Update-ApiAlert
