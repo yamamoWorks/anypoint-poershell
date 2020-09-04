@@ -1,5 +1,6 @@
-# ![ApIcon] Anypoint PowerShell
-Powershell cmdlet for MuleSoft Anypoint Platform.
+# ![ApIcon] Anypoint PowerShell (unofficial)
+Powershell cmdlet for MuleSoft Anypoint Platform.  
+https://anypoint.mulesoft.com/
 
 ![ExampleGif]
 
@@ -31,16 +32,26 @@ Update-Module -Name Anypoint
 ## Usage
 
 ### Login to Anypoint Platform
-
-To connect to Anypoint Platform, use the `Connect-ApAccount` cmdlet:
+To connect to Anypoint Platform, use the `Login-ApAccount` cmdlet:
 
 ```powershell
-# Interactively login - Input username and password.
+# Interactive login - Input username and password.
 Login-ApAccount
 
 # Credential login - Use a previously created credential.
-$credential = Get-Credential -UserName "max"
+$credential = Get-Credential -UserName "maxthemule"
 Login-ApAccount -Credential $credential
+```
+
+### Discovering cmdlets
+Use the `Get-Command` cmdlet to discover cmdlets within a specific module, or cmdlets that follow a specific search pattern:
+
+```powershell
+# List all cmdlets in the Anypoint module
+Get-Command -Module Anypoint
+
+# List all cmdlets that contain Api in the Anypoint module
+Get-Command -Module Anypoint -Name '*Api*'
 ```
 
 
