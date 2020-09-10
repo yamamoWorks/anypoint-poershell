@@ -3,8 +3,6 @@ $VerbosePreference="Continue"
 $root = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
 Import-Module "$root\src\Anypoint\Anypoint.psm1" -Force
 
-$Script:PREFIX = "ANYPOINT_POWERSHELL_TEST"
-
 BeforeAll {
     if ($Script:Credential -eq $null) {
         $Script:Credential = Get-Credential

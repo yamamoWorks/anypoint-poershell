@@ -1,4 +1,8 @@
-﻿class Context {
+﻿class Messages {
+    static [string] $IsRequired = "{0} is required."
+}
+
+class Context {
     [psobject] $Account
     [psobject] $BusinessGroup
     [psobject] $Environment

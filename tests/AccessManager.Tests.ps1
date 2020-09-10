@@ -3,7 +3,7 @@ $VerbosePreference = "Continue"
 $root = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
 Import-Module "$root\src\Anypoint\Anypoint.psm1" -Force
 
-$Script:PREFIX = "ANYPOINT_POWERSHELL_TEST"
+$Script:PREFIX = "ANYPOINT_PS"
 
 BeforeAll {
     if ($Script:Credential -eq $null) {
@@ -84,7 +84,7 @@ Describe "RoleGroup CRUD" {
         $expected.description += " Edit"
         $expected.external_names += "external_name_003"
 
-        $actual = $expected | Update-RoleGroup -RoleGroupId $expected.role_group_id
+        $actual = ($expected | Update-RoleGroup)
         $actual.name | Should -BeExactly $expected.name
         $actual.description | Should -BeExactly $expected.description
         $actual.external_names | Sort-Object | Should -BeExactly ($expected.external_names | Sort-Object)

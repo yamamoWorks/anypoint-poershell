@@ -86,12 +86,20 @@ function Get-RoleGroup {
 function Update-RoleGroup {
     [CmdletBinding(SupportsShouldProcess)]
     param (
-        [Parameter(Mandatory = $true)][guid] $RoleGroupId,
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true)][object] $InputObject,
-        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)][object] $InputObject
     )
 
     process {
+        if (-not [bool]$InputObject.role_group_id) {
+            throw [Messages]::IsRequired -f "role_group_id"
+        }
+        if (-not [bool]$InputObject.org_id) {
+            throw [Messages]::IsRequired -f "org_id"
+        }
+
+        $RoleGroupId = $InputObject.role_group_id
+        $OrganizationId = $InputObject.org_id
+
         $url = [AccessManager]::RoleGroups($OrganizationId) + "/$RoleGroupId"
         if ($PSCmdlet.ShouldProcess((FormatUrlAndBody $url $InputObject), "Put")) {
             $Script:Client.Put($url, $InputObject)
@@ -120,7 +128,7 @@ function Set-RoleGroup {
         if ($null -ne $ExternalNames) {
             $object.external_names = $ExternalNames
         }
-        $object | Update-RoleGroup -RoleGroupId $RoleGroupId -OrganizationId $OrganizationId
+        $object | Update-RoleGroup
     }
 }
 
@@ -179,7 +187,7 @@ function Add-RoleGroupExternalName {
     process {
         $object = Get-RoleGroup -RoleGroupId $RoleGroupId -OrganizationId $OrganizationId
         $object.external_names += $ExternalNames
-        $object | Update-RoleGroup -RoleGroupId $RoleGroupId -OrganizationId $OrganizationId
+        $object | Update-RoleGroup
     }
 }
 
@@ -194,7 +202,7 @@ function Remove-RoleGroupExternalName {
     process {
         $object = Get-RoleGroup -RoleGroupId $RoleGroupId -OrganizationId $OrganizationId
         $object.external_names = $object.external_names | Where-Object { $ExternalNames -notcontains $_ }
-        $object | Update-RoleGroup -RoleGroupId $RoleGroupId -OrganizationId $OrganizationId
+        $object | Update-RoleGroup
     }
 }
 
