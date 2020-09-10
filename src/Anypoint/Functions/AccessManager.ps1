@@ -205,8 +205,8 @@ function Get-User {
         [Parameter(ParameterSetName = "Single", Mandatory = $true)][guid] $UserId,
         [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][ValidateSet("Host", "Proxy", "All")][string] $Type,
         [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
-        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][ValidateRange(0, [int]::MaxValue)][int] $Offset = 0,
-        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][ValidateRange(0, 500)][int] $Limit = 25
+        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][ValidateRange(0, [int]::MaxValue)][int] $Offset,
+        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][ValidateRange(0, 500)][int] $Limit
     )
     
     process {

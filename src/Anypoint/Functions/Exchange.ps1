@@ -75,8 +75,8 @@ function Get-ExchangeAsset {
         [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][string] $Domain,
         [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][guid[]] $OrganizationIds = @($Script:Context.BusinessGroup.id),
         [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][string] $RuntimeVersion,
-        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][int] $Offset = 0,
-        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][int] $Limit = 10
+        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][int] $Offset,
+        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][int] $Limit
     )
     
     process {
@@ -84,8 +84,8 @@ function Get-ExchangeAsset {
             Domain         = $Domain;
             organizationId = $OrganizationIds;
             RuntimeVersion = $RuntimeVersion;
-            Offset         = $Offset;
-            Limit          = $Limit;
+            Offset         = $PSBoundParameters["Offset"];
+            Limit          = $PSBoundParameters["Limit"];
         }
 
         if ($PSCmdlet.ParameterSetName -eq "Single") {
@@ -104,8 +104,8 @@ function Search-ExchangeAsset {
         [Parameter(Mandatory = $false)][string] $Domain,
         [Parameter(Mandatory = $false)][guid[]] $OrganizationIds = @($Script:Context.BusinessGroup.id),
         [Parameter(Mandatory = $false)][string] $RuntimeVersion,
-        [Parameter(Mandatory = $false)][int] $Offset = 0,
-        [Parameter(Mandatory = $false)][int] $Limit = 10
+        [Parameter(Mandatory = $false)][int] $Offset,
+        [Parameter(Mandatory = $false)][int] $Limit
     )
     
     process {
@@ -114,8 +114,8 @@ function Search-ExchangeAsset {
             domain         = $Domain;
             organizationId = $OrganizationIds;
             runtimeVersion = $RuntimeVersion;
-            offset         = $Offset;
-            limit          = $Limit;
+            offset         = $PSBoundParameters["Offset"];
+            limit          = $PSBoundParameters["Limit"];
         }
 
         $Script:Client.Get([Exchange]::Assets(), $params)
