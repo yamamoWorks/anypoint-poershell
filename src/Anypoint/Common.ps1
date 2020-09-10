@@ -88,7 +88,6 @@ class AnypointClilent {
         }
 
         $url = ($this.BaseUrl + $path + "?" + $queryParameters.ToString()).TrimEnd("?")
-        Write-Verbose $url
 
         $headers = @{ "Content-Type" = "application/json" }
         if ([bool]$additionalHeaders) {
@@ -97,17 +96,17 @@ class AnypointClilent {
         if ([bool]$this.AccessToken) {
             $headers["Authorization"] = ("Bearer " + $this.AccessToken);
         }
-        Write-Verbose ("Headers`n" + (FormatHeader $headers))
+        Write-Verbose ("Headers:`n" + (FormatHeader $headers))
 
         $data = $null
         if ([bool]$body) {
             $json = ($body | ConvertTo-Json)
-            Write-Verbose $json
+            Write-Verbose ("Body`n" + $json)
             $data = [Text.Encoding]::UTF8.GetBytes($json)
         }
 
         $result = Invoke-RestMethod -Method $method -Uri $url -Headers $headers -Body $data
-        Write-Verbose ($result | ConvertTo-Json)
+        Write-Verbose ("Response:`n" + ($result | ConvertTo-Json))
         return $result
     }
 
@@ -116,13 +115,12 @@ class AnypointClilent {
         $boundary = "-----FormBoundary-" + [guid]::NewGuid().ToString("N")
 
         $url = ($this.BaseUrl + $path)
-        Write-Verbose $url
 
         $headers = @{ "Content-Type" = "multipart/form-data; boundary=$boundary" }
         if ([bool]$this.AccessToken) {
             $headers["Authorization"] = ("Bearer " + $this.AccessToken);
         }
-        Write-Verbose ("Headers`n" + (FormatHeader $headers))
+        Write-Verbose ("Headers:`n" + (FormatHeader $headers))
 
         $data = New-Object System.Net.Http.MultipartFormDataContent($boundary)
         foreach ($key in $body.Keys) {
@@ -151,7 +149,7 @@ class AnypointClilent {
 
         try {
             $result = Invoke-RestMethod -Method $method -Uri $url -Headers $headers -InFile $postDataFile
-            Write-Verbose ($result | ConvertTo-Json)
+            Write-Verbose ("Response:`n" + ($result | ConvertTo-Json))
             return $result
         }
         finally {

@@ -96,7 +96,7 @@ function Update-ApiAlert {
 
     process {
         $url = [ApiManager]::Alerts($OrganizationId, $EnvironmentId, $ApiInstanceId) + "/$AlertId"
-        if ($PSCmdlet.ShouldProcess((FormatUrlAndBody $url $InputObject), "Put")) {
+        if ($PSCmdlet.ShouldProcess((FormatUrlAndBody $url $InputObject), "Patch")) {
             $Script:Client.Patch($url, $InputObject)
         }
     }
