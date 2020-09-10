@@ -53,6 +53,10 @@ class AnypointClilent {
         return $this.InvokeMethodWithJsonInternal("Get", $url, $params, $null, $null)
     }
 
+    [psobject] Get([string]$url, [hashtable]$params, [hashtable]$headers) {
+        return $this.InvokeMethodWithJsonInternal("Get", $url, $params, $null, $headers)
+    }
+
     [psobject] Delete([string]$url) {
         return $this.InvokeMethodWithJsonInternal("Delete", $url, $null, $null, $null)
     }
