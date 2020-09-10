@@ -87,14 +87,15 @@ function Get-ApiAlert {
 function Update-ApiAlert {
     [CmdletBinding(SupportsShouldProcess)]
     param (
-        [Parameter(Mandatory = $true)][int] $ApiInstanceId,
-        [Parameter(Mandatory = $true)][guid] $AlertId,
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true)][object] $InputObject,
-        [Parameter(Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id,
-        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)][object] $InputObject
     )
 
     process {
+        $OrganizationId = GetRequiredValue $InputObject "organizationId"
+        $EnvironmentId = GetRequiredValue $InputObject "environmentId"
+        $ApiInstanceId = GetRequiredValue $InputObject "api.id"
+        $AlertId = GetRequiredValue $InputObject "id"
+
         $url = [ApiManager]::Alerts($OrganizationId, $EnvironmentId, $ApiInstanceId) + "/$AlertId"
         if ($PSCmdlet.ShouldProcess((FormatUrlAndBody $url $InputObject), "Patch")) {
             $Script:Client.Patch($url, $InputObject)

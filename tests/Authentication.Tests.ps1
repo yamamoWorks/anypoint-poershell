@@ -1,5 +1,3 @@
-$VerbosePreference="Continue"
- 
 $root = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
 Import-Module "$root\src\Anypoint\Anypoint.psm1" -Force
 

@@ -1,5 +1,3 @@
-$VerbosePreference = "Continue"
-
 $root = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
 Import-Module "$root\src\Anypoint\Anypoint.psm1" -Force
 
@@ -10,6 +8,13 @@ BeforeAll {
         $Script:Credential = Get-Credential
     }
     Login-Account $Script:Credential
+
+    function ConvertToPlainText([securestring] $secureString) {
+        $bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secureString)
+        $plainString = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr)
+        [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
+        return $plainString
+    }
 }
 
 Describe "Basic" {

@@ -1,5 +1,5 @@
 ﻿class Messages {
-    static [string] $IsRequired = "{0} is required."
+    static [string] $IsRequired = "'{0}' is required."
 }
 
 class Context {
@@ -285,4 +285,15 @@ function ConvertDictionayToHashtable() {
         $hash[$key] = $value
     }
     $hash
+}
+
+function GetRequiredValue ($object, $path) {
+    $value = $object
+    foreach ($prop in ($path -split '\.')) {
+        $value = $value.$prop
+    }
+    if ($null -eq $value -or $null -eq "") {
+        throw [Messages]::IsRequired -f $path
+    }
+    return $value
 }

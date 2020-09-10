@@ -90,15 +90,8 @@ function Update-RoleGroup {
     )
 
     process {
-        if (-not [bool]$InputObject.role_group_id) {
-            throw [Messages]::IsRequired -f "role_group_id"
-        }
-        if (-not [bool]$InputObject.org_id) {
-            throw [Messages]::IsRequired -f "org_id"
-        }
-
-        $RoleGroupId = $InputObject.role_group_id
-        $OrganizationId = $InputObject.org_id
+        $RoleGroupId = GetRequiredValue $InputObject "role_group_id"
+        $OrganizationId = GetRequiredValue $InputObject "org_id"
 
         $url = [AccessManager]::RoleGroups($OrganizationId) + "/$RoleGroupId"
         if ($PSCmdlet.ShouldProcess((FormatUrlAndBody $url $InputObject), "Put")) {
