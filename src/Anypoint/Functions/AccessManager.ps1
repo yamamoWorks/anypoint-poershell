@@ -15,22 +15,31 @@ class AccessManager {
         return [AccessManager]::Organizations($organizationId) + "/rolegroups"
     }
 
+    static [string] RoleGroups($organizationId, $roleGroupId) {
+        return [AccessManager]::RoleGroups($organizationId) + "/$roleGroupId"
+    }
+
     static [string] Users($organizationId) {
         return [AccessManager]::Organizations($organizationId) + "/users"
+    }
+
+    static [string] Users($organizationId, $userId) {
+        return [AccessManager]::Users($organizationId) + "/$userId"
     }
 }
 
 
 function Get-BusinessGroup {
-    [CmdletBinding(DefaultParameterSetName = "Multiple")]
+    [CmdletBinding(DefaultParameterSetName = "ByName")]
     param (
-        [Parameter(ParameterSetName = "Single", Mandatory = $true)][guid] $OrganizationId,
-        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][string] $Name
+        [Parameter(ParameterSetName = "Id", Mandatory = $true)][guid] $OrganizationId,
+        [Parameter(ParameterSetName = "ByName", Mandatory = $false)][string] $Name
     )
 
     process {
         if ([bool]$OrganizationId) {
-            $Script:Client.Get([AccessManager]::Organizations($OrganizationId))
+            $path = [AccessManager]::Organizations($OrganizationId)
+            Invoke-AnypointApi -Method Get -Path $path
         }
         else {  
             $orgs = $Script:Context.Account.contributorOfOrganizations          
@@ -45,13 +54,14 @@ function Get-BusinessGroup {
 }
 
 function Get-Environment {
-    [CmdletBinding(DefaultParameterSetName = "Multiple")]
+    [CmdletBinding(DefaultParameterSetName = "Query")]
     param (
-        [Parameter(ParameterSetName = "Single", Mandatory = $true)][guid] $EnvironmentId,
-        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][ValidateSet("Production", "Sandbox", "Design")][string] $Type,
-        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][ValidateSet($true, $false, $null)] $IsProduction,
-        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][string] $Name,
-        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
+        [Parameter(ParameterSetName = "Id", Mandatory = $true)][guid] $EnvironmentId,
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][ValidateSet("Production", "Sandbox", "Design")][string] $Type,
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][ValidateSet($true, $false, $null)] $IsProduction,
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][string] $Name,
+        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true)][PSCustomObject] $BusinessGroup
     )
 
     process {
@@ -60,20 +70,32 @@ function Get-Environment {
             isProduction = $IsProduction;
             name         = $Name;
         }
-        $Script:Client.Get([AccessManager]::Environments($OrganizationId, $EnvironmentId), $params) | Expand-Property -propertyName "data"
+
+        if ([bool]$BusinessGroup) {
+            $OrganizationId = GetRequiredValue $BusinessGroup "id"
+        }
+
+        $path = [AccessManager]::Environments($OrganizationId, $EnvironmentId)
+        Invoke-AnypointApi -Method Get -Path $path -QueryParameters $params | Expand-Property -propertyName "data"
     }
 }
 
 function Get-RoleGroup {
-    [CmdletBinding(DefaultParameterSetName = "Multiple")]
+    [CmdletBinding(DefaultParameterSetName = "Query")]
     param (
-        [Parameter(ParameterSetName = "Single", Mandatory = $true)][guid] $RoleGroupId,
-        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][string] $Name,
-        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
+        [Parameter(ParameterSetName = "Id", Mandatory = $true)][guid] $RoleGroupId,
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][string] $Name,
+        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true)][PSCustomObject] $BusinessGroup
     )
 
     process {
-        $roles = $Script:Client.Get([AccessManager]::RoleGroups($OrganizationId) + "/$RoleGroupId") | Expand-Property -propertyName "data"
+        if ([bool]$BusinessGroup) {
+            $OrganizationId = GetRequiredValue $BusinessGroup "id"
+        }
+
+        $path = [AccessManager]::RoleGroups($OrganizationId, $RoleGroupId)
+        $roles = Invoke-AnypointApi -Method Get -Path $path | Expand-Property -propertyName "data"
         if ([bool]$Name) {
             $roles | Where-Object { $_.name -eq $Name }
         }
@@ -84,7 +106,7 @@ function Get-RoleGroup {
 }
 
 function Update-RoleGroup {
-    [CmdletBinding(SupportsShouldProcess)]
+    [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)][object] $InputObject
     )
@@ -93,15 +115,13 @@ function Update-RoleGroup {
         $RoleGroupId = GetRequiredValue $InputObject "role_group_id"
         $OrganizationId = GetRequiredValue $InputObject "org_id"
 
-        $url = [AccessManager]::RoleGroups($OrganizationId) + "/$RoleGroupId"
-        if ($PSCmdlet.ShouldProcess((FormatUrlAndBody $url $InputObject), "Put")) {
-            $Script:Client.Put($url, $InputObject)
-        }
+        $path = [AccessManager]::RoleGroups($OrganizationId, $RoleGroupId)
+        Invoke-AnypointApi -Method Put -Path $path -Body $InputObject
     }
 }
 
 function Set-RoleGroup {
-    [CmdletBinding(SupportsShouldProcess)]
+    [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)][guid] $RoleGroupId,
         [Parameter(Mandatory = $false)][string] $Name,
@@ -126,12 +146,12 @@ function Set-RoleGroup {
 }
 
 function New-RoleGroup {
-    [CmdletBinding(SupportsShouldProcess)]
+    [CmdletBinding()]
     param (
-        [Parameter(ParameterSetName = "Pipeline", Mandatory = $true, ValueFromPipeline = $true)][object] $InputObject,
         [Parameter(ParameterSetName = "Params", Mandatory = $true)][string] $Name,
         [Parameter(ParameterSetName = "Params", Mandatory = $false)][string] $Description,
         [Parameter(ParameterSetName = "Params", Mandatory = $false)][string[]] $ExternalNames,
+        [Parameter(ParameterSetName = "Pipeline", Mandatory = $true, ValueFromPipeline = $true)][object] $InputObject,
         [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
     )
 
@@ -147,30 +167,32 @@ function New-RoleGroup {
             }
         }
 
-        $url = [AccessManager]::RoleGroups($OrganizationId)
-        if ($PSCmdlet.ShouldProcess((FormatUrlAndBody $url $object), "Post")) {
-            $Script:Client.Post($url, $object)
-        }
+        $path = [AccessManager]::RoleGroups($OrganizationId)
+        Invoke-AnypointApi -Method Post -Path $path -Body $object
     }
 }
 
 function Remove-RoleGroup {
-    [CmdletBinding(SupportsShouldProcess)]
+    [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $true)][guid] $RoleGroupId,
-        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
+        [Parameter(ParameterSetName = "Id", Mandatory = $true)][guid] $RoleGroupId,
+        [Parameter(ParameterSetName = "Id", Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
+        [Parameter(ParameterSetName = "Pipeline", Mandatory = $true, ValueFromPipeline = $true)][object] $RoleGroup
     )
 
     process {
-        $url = [AccessManager]::RoleGroups($OrganizationId) + "/$RoleGroupId"
-        if ($PSCmdlet.ShouldProcess($url, "Delete")) {
-            $Script:Client.Delete($url)
+        if ([bool]$RoleGroup) {
+            $RoleGroupId = GetRequiredValue $RoleGroup "role_group_id"
+            $OrganizationId = GetRequiredValue $RoleGroup "org_id"
         }
+
+        $path = [AccessManager]::RoleGroups($OrganizationId, $RoleGroupId)
+        Invoke-AnypointApi -Method Delete -Path $path
     }
 }
 
 function Add-RoleGroupExternalName {
-    [CmdletBinding(SupportsShouldProcess)]
+    [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)][guid] $RoleGroupId,
         [Parameter(Mandatory = $true)][string[]] $ExternalNames,
@@ -185,7 +207,7 @@ function Add-RoleGroupExternalName {
 }
 
 function Remove-RoleGroupExternalName {
-    [CmdletBinding(SupportsShouldProcess)]
+    [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)][guid] $RoleGroupId,
         [Parameter(Mandatory = $true)][string[]] $ExternalNames,
@@ -200,13 +222,13 @@ function Remove-RoleGroupExternalName {
 }
 
 function Get-User {
-    [CmdletBinding(DefaultParameterSetName = "Multiple")]
+    [CmdletBinding(DefaultParameterSetName = "Query")]
     param (
-        [Parameter(ParameterSetName = "Single", Mandatory = $true)][guid] $UserId,
-        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][ValidateSet("Host", "Proxy", "All")][string] $Type,
-        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
-        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][ValidateRange(0, [int]::MaxValue)][int] $Offset,
-        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][ValidateRange(0, 500)][int] $Limit
+        [Parameter(ParameterSetName = "Id", Mandatory = $true)][guid] $UserId,
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][ValidateSet("Host", "Proxy", "All")][string] $Type,
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][ValidateRange(0, [int]::MaxValue)][int] $Offset,
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][ValidateRange(0, 500)][int] $Limit,
+        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
     )
     
     process {
@@ -215,92 +237,102 @@ function Get-User {
             offset = $PSBoundParameters["Offset"]
             limit  = $PSBoundParameters["Limit"]
         }
-        $Script:Client.Get([AccessManager]::Users($OrganizationId) + "/$UserId", $params) | Expand-Property -propertyName "data"
+        $path = [AccessManager]::Users($OrganizationId, $UserId)
+        Invoke-AnypointApi -Method Get -Path $path -QueryParameters $params | Expand-Property -propertyName "data"
     }    
 }
 
 function New-User {
-    [CmdletBinding(SupportsShouldProcess)]
+    [CmdletBinding()]
     param (
-        [Parameter(ParameterSetName = "Pipeline", Mandatory = $true, ValueFromPipeline = $true)][object] $InputObject,
         [Parameter(ParameterSetName = "Params", Mandatory = $true)][string] $Username,
         [Parameter(ParameterSetName = "Params", Mandatory = $false)][string] $FirstName,
         [Parameter(ParameterSetName = "Params", Mandatory = $false)][string] $LastName,
         [Parameter(ParameterSetName = "Params", Mandatory = $false)][string] $Email,
         [Parameter(ParameterSetName = "Params", Mandatory = $false)][string] $PhoneNumber,
         [Parameter(ParameterSetName = "Params", Mandatory = $true)][securestring] $Password,
+        [Parameter(ParameterSetName = "Pipeline", Mandatory = $true, ValueFromPipeline = $true)][object] $InputObject,
         [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
     )
     
     process {
         if ([bool]$InputObject) {
-            $object = $InputObject
+            $user = $InputObject
         }
         else {
-            $object = ConvertDictionayToHashtable $PSBoundParameters `
-                -Target "username", "firstName", "lastName", "email", "phoneNumber", "password"
+            $user = @{}
+            BindModel -Model $user -BoundParameters $PSBoundParameters `
+                -Properties "username", "firstName", "lastName", "email", "phoneNumber", "password"
         }
 
-        $url = [AccessManager]::Users($OrganizationId)
-        if ($PSCmdlet.ShouldProcess((FormatUrlAndBody $url $object), "Post")) {
-            $Script:Client.Post($url, $object)
-        }
-    }
-    
+        $path = [AccessManager]::Users($OrganizationId)
+        Invoke-AnypointApi -Method Post -Path $path -Body $user
+    }    
+}
+
+function Update-User {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)][object] $InputObject
+    )
+   
+    process {
+        $UserId = GetRequiredValue $InputObject "id"
+        $OrganizationId = GetRequiredValue $InputObject "organizationId"
+
+        $path = [AccessManager]::Users($OrganizationId, $UserId)
+        Invoke-AnypointApi -Method Put -Path $path -Body $InputObject
+    }    
 }
 
 function Set-User {
-    [CmdletBinding(SupportsShouldProcess)]
+    [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)][guid] $UserId,
-        [Parameter(ParameterSetName = "Pipeline", Mandatory = $true, ValueFromPipeline = $true)][object] $InputObject,
-        [Parameter(ParameterSetName = "Params", Mandatory = $false)][string] $FirstName,
-        [Parameter(ParameterSetName = "Params", Mandatory = $false)][string] $LastName,
-        [Parameter(ParameterSetName = "Params", Mandatory = $false)][string] $Email,
-        [Parameter(ParameterSetName = "Params", Mandatory = $false)][string] $PhoneNumber,
-        [Parameter(ParameterSetName = "Params", Mandatory = $false)][bool] $Enabled,
-        [Parameter(ParameterSetName = "Params", Mandatory = $false)][object] $Properties,
+        [Parameter(Mandatory = $false)][string] $FirstName,
+        [Parameter(Mandatory = $false)][string] $LastName,
+        [Parameter(Mandatory = $false)][string] $Email,
+        [Parameter(Mandatory = $false)][string] $PhoneNumber,
+        [Parameter(Mandatory = $false)][bool] $Enabled,
+        [Parameter(Mandatory = $false)][object] $Properties,
         [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
     )
     
     process {
-        if ([bool]$InputObject) {
-            $object = $InputObject
-        }
-        else {
-            $object = ConvertDictionayToHashtable $PSBoundParameters `
-                -Target "firstName", "lastName", "email", "phoneNumber", "enabled", "properties"
-        }
+        $user = Get-User -UserId $UserId -OrganizationId $OrganizationId
 
-        $url = [AccessManager]::Users($OrganizationId) + "/$UserId"
-        if ($PSCmdlet.ShouldProcess((FormatUrlAndBody $url $object), "Put")) {
-            $Script:Client.Put($url, $object)
-        }
+        BindModel -Model $user -BoundParameters $PSBoundParameters `
+            -Properties "firstName", "lastName", "email", "phoneNumber", "enabled", "properties"
+
+        $user | Update-User
     }    
 }
 
 function Remove-User {
-    [CmdletBinding(SupportsShouldProcess)]
+    [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $true)][guid[]] $UserId,
-        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
+        [Parameter(ParameterSetName = "Id", Mandatory = $true)][guid[]] $UserId,
+        [Parameter(ParameterSetName = "Id", Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
+        [Parameter(ParameterSetName = "Pipeline", Mandatory = $true, ValueFromPipeline = $true)][object] $User
     )
     
     process {
+        if ([bool]$User) {
+            $UserId = GetRequiredValue $User "id"
+            $OrganizationId = GetRequiredValue $User "organizationId"
+        }
+        
         if ($UserId.Count -eq 1) {
-            $url = [AccessManager]::Users($OrganizationId) + "/$UserId"
-            if ($PSCmdlet.ShouldProcess($url, "Delete")) {
-                $Script:Client.Delete($url)
-            }
+            $path = [AccessManager]::Users($OrganizationId, $UserId)
+            Invoke-AnypointApi -Method Delete -Path $path
         }
         else {
-            $url = [AccessManager]::Users($OrganizationId)
-            if ($PSCmdlet.ShouldProcess((FormatUrlAndBody $url $UserId.Guid), "Delete")) {
-                $Script:Client.Delete($url, $null, $UserId.Guid)
-            }
+            $path = [AccessManager]::Users($OrganizationId)
+            Invoke-AnypointApi -Method Delete -Path $path -Body $UserId.Guid
         }
     }    
 }
+
 
 Export-ModuleMember -Function `
     Get-BusinessGroup, `
@@ -308,4 +340,4 @@ Export-ModuleMember -Function `
     Get-RoleGroup, Set-RoleGroup, Update-RoleGroup, New-RoleGroup, Remove-RoleGroup, `
     Get-Context, Set-Context, `
     Add-RoleGroupExternalName, Remove-RoleGroupExternalName, `
-    Get-User, New-User, Set-User, Remove-User
+    Get-User, New-User, Update-User, Set-User, Remove-User

@@ -7,18 +7,22 @@ class Exchange {
         return [Exchange]::BasePath + "/assets"
     }
 
-    static [string] Assets($organizationId) {
-        return [Exchange]::BasePath + "/organizations/$organizationId/assets"
+    static [string] Assets($groupId, $assetId) {
+        return [Exchange]::BasePath + "/assets/$groupId/$assetId"
+    }
+
+    static [string] OrganizationAssets($organizationId, $groupId, $assetId) {
+        return [Exchange]::BasePath + "/organizations/$organizationId/assets/$groupId/$assetId"
     }
 }
 
 function New-ExchangeAsset {
-    [CmdletBinding(SupportsShouldProcess)]
+    [CmdletBinding()]
     param (
+        [Parameter(Mandatory = $true)][ValidateSet("RAML-Fragment", "RAML", "OAS", "WSDL", "HTTP", "Custom")][string] $Classifier,
+        [Parameter(Mandatory = $true)][string] $Name,
         [Parameter(Mandatory = $true)][string] $AssetId,
         [Parameter(Mandatory = $true)][string] $Version,
-        [Parameter(Mandatory = $true)][string] $Name,
-        [Parameter(Mandatory = $true)][ValidateSet("RAML-Fragment", "RAML", "OAS", "WSDL", "HTTP", "Custom")][string] $Classifier,
         [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
         [Parameter(Mandatory = $false)][guid] $GroupId = $Script:Context.BusinessGroup.id
     )
@@ -41,13 +45,11 @@ function New-ExchangeAsset {
         return $dynamicParams
     }
 
-    begin {
-        $ApiVersion = $PSBoundParameters.ApiVersion
-        $Main = $PSBoundParameters.Main
-        $AssetFilePath = $PSBoundParameters.AssetFilePath
-    }
-
     process {
+        $ApiVersion = $PSBoundParameters.ApiVersion
+        $AssetFilePath = $PSBoundParameters.AssetFilePath
+        $Main = $PSBoundParameters.Main
+
         $multiParts = @{
             organizationId = $OrganizationId
             groupId        = $GroupId
@@ -59,24 +61,22 @@ function New-ExchangeAsset {
             main           = $Main
             asset          = if ([bool]$AssetFilePath) { Get-Item -Path $AssetFilePath }
         }
-
-        $url = [Exchange]::Assets()
-        if ($PSCmdlet.ShouldProcess((FormatUrlAndBody $url $multiParts), "Post")) {
-            $Script:Client.PostMultipartFormData($url, $multiParts)
-        }
+        
+        $path = [Exchange]::Assets()
+        Invoke-AnypointApi -Method Post -Path $path -Body $multiParts -MultipartForm
     }
 }
 
 function Get-ExchangeAsset {
     [CmdletBinding()]
     param (
-        [Parameter(ParameterSetName = "Single", Mandatory = $false)][guid] $GroupId = $Script:Context.BusinessGroup.id,
-        [Parameter(ParameterSetName = "Single", Mandatory = $true)][string] $AssetId,
-        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][string] $Domain,
-        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][guid[]] $OrganizationIds = @($Script:Context.BusinessGroup.id),
-        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][string] $RuntimeVersion,
-        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][int] $Offset,
-        [Parameter(ParameterSetName = "Multiple", Mandatory = $false)][int] $Limit
+        [Parameter(ParameterSetName = "Id", Mandatory = $false)][guid] $GroupId = $Script:Context.BusinessGroup.id,
+        [Parameter(ParameterSetName = "Id", Mandatory = $true)][string] $AssetId,
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][string] $Domain,
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][guid[]] $OrganizationIds = @($Script:Context.BusinessGroup.id),
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][string] $RuntimeVersion,
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][int] $Offset,
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][int] $Limit
     )
     
     process {
@@ -88,11 +88,13 @@ function Get-ExchangeAsset {
             Limit          = $PSBoundParameters["Limit"];
         }
 
-        if ($PSCmdlet.ParameterSetName -eq "Single") {
-            $Script:Client.Get([Exchange]::Assets() + "/$GroupId/$AssetId")
+        if ($PSCmdlet.ParameterSetName -eq "Id") {
+            $path = [Exchange]::Assets($GroupId, $AssetId)
+            Invoke-AnypointApi -Method Get -Path $path
         }
         else {
-            $Script:Client.Get([Exchange]::Assets(), $params)
+            $path = [Exchange]::Assets()
+            Invoke-AnypointApi -Method Get -Path $path -QueryParameters $params
         }
     }    
 }
@@ -118,17 +120,19 @@ function Search-ExchangeAsset {
             limit          = $PSBoundParameters["Limit"];
         }
 
-        $Script:Client.Get([Exchange]::Assets(), $params)
+        $path = [Exchange]::Assets()
+        Invoke-AnypointApi -Method Get -Path $path -QueryParameters $params
     }    
 }
 
 function Remove-ExchangeAsset {
-    [CmdletBinding(SupportsShouldProcess)]
+    [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $true)][string] $AssetId,
-        [Parameter(Mandatory = $false)][switch] $HardDelete,
-        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
-        [Parameter(Mandatory = $false)][guid] $GroupId = $Script:Context.BusinessGroup.id
+        [Parameter(ParameterSetName = "Id", Mandatory = $false)][guid] $GroupId = $Script:Context.BusinessGroup.id,
+        [Parameter(ParameterSetName = "Id", Mandatory = $true)][string] $AssetId,
+        [Parameter(ParameterSetName = "Id", Mandatory = $false)][switch] $HardDelete,
+        [Parameter(ParameterSetName = "Id", Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
+        [Parameter(ParameterSetName = "Pipeline", Mandatory = $true, ValueFromPipeline = $true)][object] $Asset
     )
     
     process {
@@ -136,10 +140,14 @@ function Remove-ExchangeAsset {
             "X-Delete-Type" = if ($HardDelete) { "hard-delete" }else { "soft-delete" }
         }
 
-        $url = [Exchange]::Assets($OrganizationId) + "/$GroupId/$AssetId"
-        if ($PSCmdlet.ShouldProcess($url, "Delete")) {
-            $Script:Client.Delete($url, $headers)
+        if ([bool]$Asset) {
+            $OrganizationId = GetRequiredValue $Asset "organization.id"
+            $GroupId        = GetRequiredValue $Asset "groupId"
+            $AssetId        = GetRequiredValue $Asset "assetId"
         }
+
+        $path = [Exchange]::OrganizationAssets($OrganizationId, $GroupId, $AssetId)
+        Invoke-AnypointApi -Method Delete -Path $path -AdditionalHeaders $headers
     }    
 }
 

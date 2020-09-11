@@ -12,7 +12,7 @@
     RootModule        = 'Anypoint.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.0.4'
+    ModuleVersion     = '0.0.5'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -33,7 +33,7 @@
     Description       = 'PowerShell cmdlet for MuleSoft Anypoint Platform (unofficial)'
 
     # Minimum version of the PowerShell engine required by this module
-    PowerShellVersion = '5.0'
+    PowerShellVersion = '5.1'
 
     # Name of the PowerShell host required by this module
     # PowerShellHostName = ''
@@ -80,7 +80,7 @@
         "Get-RoleGroup", "Set-RoleGroup", "Update-RoleGroup", "New-RoleGroup", "Remove-RoleGroup",
         "Get-Context", "Set-Context",
         "Add-RoleGroupExternalName", "Remove-RoleGroupExternalName",
-        "Get-User", "New-User", "Set-User", "Remove-User"
+        "Get-User", "New-User", "Update-User", "Set-User", "Remove-User"
         
         # ApiManager
         "Get-Api",
@@ -90,6 +90,9 @@
         
         # Exchange
         "New-ExchangeAsset", "Get-ExchangeAsset", "Search-ExchangeAsset", "Remove-ExchangeAsset"
+
+        # CloudHub
+        "Get-CloudHubAlert"
     )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.

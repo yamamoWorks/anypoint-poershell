@@ -15,77 +15,123 @@ class ApiManager {
         return [ApiManager]::Environments($organizationId, $environmentsId) + "/apis"
     }
 
+    static [string] Apis($organizationId, $environmentsId, $apiInstanceId) {
+        return [ApiManager]::Environments($organizationId, $environmentsId) + "/apis/$apiInstanceId"
+    }
+
     static [string] Policies($organizationId, $environmentsId, $environmentApiId) {
         return [ApiManager]::Environments($organizationId, $environmentsId) + "/apis/$environmentApiId/policies"
     }
 
-    static [string] Alerts($organizationId, $environmentsId, $environmentApiId) {
-        return [ApiManager]::Environments($organizationId, $environmentsId) + "/apis/$environmentApiId/alerts"
+    static [string] Alerts($organizationId, $environmentsId, $environmentApiId, $alertId) {
+        return [ApiManager]::Environments($organizationId, $environmentsId) + "/apis/$environmentApiId/alerts/$alertId"
     }
 }
 
 function Get-Api {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = "Query")]
     param (
-        [Parameter(Mandatory = $false)][string] $AssetId,
-        [Parameter(Mandatory = $false)][string] $AutodiscoveryApiName,
-        [Parameter(Mandatory = $false)][string] $AutodiscoveryInstanceName,
-        [Parameter(Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id,
-        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][string] $AssetId,
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][string] $AutodiscoveryApiName,
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][string] $AutodiscoveryInstanceName,
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][guid]   $EnvironmentId = $Script:Context.Environment.id,
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][guid]   $OrganizationId = $Script:Context.BusinessGroup.id,
+        [Parameter(ParameterSetName = "Pipeline", Mandatory = $true, ValueFromPipeline = $true)][object] $Environment
     )
 
     process {
+        if ([bool]$Environment) {
+            $OrganizationId = GetRequiredValue $Environment "organizationId"
+            $EnvironmentId = GetRequiredValue $Environment "id"
+        }
+
         $params = @{
             assetId                   = $AssetId;
             autodiscoveryApiName      = $AutodiscoveryApiName;
             autodiscoveryInstanceName = $AutodiscoveryInstanceName;
         }
-        $Script:Client.Get([ApiManager]::Apis($OrganizationId, $EnvironmentId), $params) | Expand-Property -propertyName "assets"
+
+        $path = [ApiManager]::Apis($OrganizationId, $EnvironmentId)
+        Invoke-AnypointApi -Method Get -Path $path -QueryParameters $params | Expand-Property -propertyName "assets"
     }
 }
 
 function Get-ApiInstance {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $true)][int] $ApiInstanceId,
-        [Parameter(Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id,
-        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
+        [Parameter(ParameterSetName = "Query", Mandatory = $true)][int]     $ApiInstanceId,
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][switch] $IncludeTlsContexts,
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][guid]   $EnvironmentId = $Script:Context.Environment.id,
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][guid]   $OrganizationId = $Script:Context.BusinessGroup.id,
+        [Parameter(ParameterSetName = "Pipeline", Mandatory = $true, ValueFromPipeline = $true)][object] $Api
     )
 
     process {
-        $Script:Client.Get([ApiManager]::Apis($OrganizationId, $EnvironmentId) + "/$ApiInstanceId")
+        if ([bool]$Api) {
+            foreach ($api in $Api.apis) {
+                Get-ApiInstance `
+                    -ApiInstanceId (GetRequiredValue $api "id") `
+                    -OrganizationId (GetRequiredValue $api "organizationId") `
+                    -EnvironmentId (GetRequiredValue $api "environmentId") `
+                    -IncludeTlsContexts:$IncludeTlsContexts
+            }
+        }
+        else {
+            $params = @{
+                includeTlsContexts = $IncludeTlsContexts
+            }
+
+            $path = [ApiManager]::Apis($OrganizationId, $EnvironmentId, $ApiInstanceId)
+            Invoke-AnypointApi -Method Get -Path $path -QueryParameters $params
+        }
     }
 }
 
 function Get-ApiPolicy {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $true)][int] $ApiInstanceId,
-        [Parameter(Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id,
-        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
+        [Parameter(ParameterSetName = "Query", Mandatory = $true)][int] $ApiInstanceId,
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id,
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
+        [Parameter(ParameterSetName = "Pipeline", Mandatory = $true, ValueFromPipeline = $true)][object] $ApiInstance
     )
 
     process {
-        $Script:Client.Get([ApiManager]::Policies($OrganizationId, $EnvironmentId, $ApiInstanceId)) | Expand-Property -propertyName "policies"
+        if ([bool]$ApiInstance) {
+            $OrganizationId = GetRequiredValue $ApiInstance "organizationId"
+            $EnvironmentId = GetRequiredValue $ApiInstance "environmentId"
+            $ApiInstanceId = GetRequiredValue $ApiInstance "id"
+        }
+
+        $path = [ApiManager]::Policies($OrganizationId, $EnvironmentId, $ApiInstanceId)
+        Invoke-AnypointApi -Method Get -Path $path | Expand-Property -propertyName "policies"
     }
 }
 
 function Get-ApiAlert {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $true)][int] $ApiInstanceId,
-        [Parameter(Mandatory = $false)][guid] $AlertId,
-        [Parameter(Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id,
-        [Parameter(Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id
+        [Parameter(ParameterSetName = "Query", Mandatory = $true)][int] $ApiInstanceId,
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][guid] $AlertId,
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id,
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][guid] $OrganizationId = $Script:Context.BusinessGroup.id,
+        [Parameter(ParameterSetName = "Pipeline", Mandatory = $true, ValueFromPipeline = $true)][object] $ApiInstance
     )
 
     process {
-        $Script:Client.Get([ApiManager]::Alerts($OrganizationId, $EnvironmentId, $ApiInstanceId) + "/$AlertId")
+        if ([bool]$ApiInstance) {
+            $OrganizationId = GetRequiredValue $ApiInstance "organizationId"
+            $EnvironmentId = GetRequiredValue $ApiInstance "environmentId"
+            $ApiInstanceId = GetRequiredValue $ApiInstance "id"
+        }
+
+        $path = [ApiManager]::Alerts($OrganizationId, $EnvironmentId, $ApiInstanceId, $AlertId)
+        Invoke-AnypointApi -Method Get -Path $path
     }
 }
 
 function Update-ApiAlert {
-    [CmdletBinding(SupportsShouldProcess)]
+    [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)][object] $InputObject
     )
@@ -96,10 +142,8 @@ function Update-ApiAlert {
         $ApiInstanceId = GetRequiredValue $InputObject "api.id"
         $AlertId = GetRequiredValue $InputObject "id"
 
-        $url = [ApiManager]::Alerts($OrganizationId, $EnvironmentId, $ApiInstanceId) + "/$AlertId"
-        if ($PSCmdlet.ShouldProcess((FormatUrlAndBody $url $InputObject), "Patch")) {
-            $Script:Client.Patch($url, $InputObject)
-        }
+        $path = [ApiManager]::Alerts($OrganizationId, $EnvironmentId, $ApiInstanceId, $AlertId)
+        Invoke-AnypointApi -Method Patch -Path $path -Body $InputObject
     }
 }
 

@@ -27,7 +27,8 @@ Describe "Authentication" {
         }
     }
     It "Logout" {
+        $orgId = (Get-BusinessGroup | Select-Object -First 1).id
         Logout-Account
-        { Get-Environment } | Should -Throw "Response status code does not indicate success: 401 (Unauthorized)."
+        { Get-BusinessGroup -OrganizationId $orgId } | Should -Throw "Response status code does not indicate success: 401 (Unauthorized)."
     }
 }

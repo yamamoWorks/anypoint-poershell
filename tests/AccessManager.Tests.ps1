@@ -138,11 +138,11 @@ Describe "RoleGroup CRUD" {
     }
     It "Remove-RoleGroup" {
         $rg01 = Get-RoleGroup -RoleGroupId $Script:role01_id
-        Remove-RoleGroup $rg01.role_group_id
+        Remove-RoleGroup -RoleGroupId $rg01.role_group_id
         Get-RoleGroup -Name $rg01.name | Should -BeNullOrEmpty
 
         $rg02 = Get-RoleGroup -RoleGroupId $Script:role02_id
-        Remove-RoleGroup $rg02.role_group_id
+        $rg02 | Remove-RoleGroup
         Get-RoleGroup -Name $rg02.name | Should -BeNullOrEmpty
     }
 }

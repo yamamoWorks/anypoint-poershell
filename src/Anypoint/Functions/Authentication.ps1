@@ -1,4 +1,7 @@
-﻿function Connect-Account {
+﻿$Script:Context = $null
+$Script:AccessToken = $null
+
+function Connect-Account {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $false)][PSCredential] $Credential,
@@ -18,14 +21,15 @@
                 $loginInfo.username = Read-Host "Username"
                 $loginInfo.password = ConvertToPlainText (Read-Host "Password" -AsSecureString)
             }
-            $token = $Script:Client.Post("/accounts/login", $loginInfo).access_token
+            $token = (Invoke-AnypointApi -Method Post -Path "/accounts/login" -Body $loginInfo).access_token
         }
+        $Script:AccessToken = $token
 
-        $Script:Client.SetAccessToken($token)
+        $Script:Context = [Context]::new()
 
-        $Script:Context.Account = $Script:Client.Get("/accounts/api/me").user
+        $Script:Context.Account = (Invoke-AnypointApi -Method Get -Path "/accounts/api/me").user
 
-        $org = $Script:Context.Account.contributorOfOrganizations[0]
+        $org = $Script:Context.Account.contributorOfOrganizations | Select-Object -First 1
         $activeOrganizationId = $Script:Context.Account.properties.cs_auth.activeOrganizationId
         if ([bool]$activeOrganizationId) {
             $org = Get-BusinessGroup -OrganizationId $activeOrganizationId
@@ -44,7 +48,8 @@ function Disconnect-Account {
     )
 
     process {
-        $Script:Client.ClearAccessToken()
+        $Script:AccessToken = $null
+        $Script:Context = $null
     }
 }
 
@@ -70,19 +75,39 @@ function Set-Context {
         [string] $BusinessGroupName,
 
         [Parameter(ParameterSetName = "Environment", Mandatory = $true)]
-        [string] $EnvironmentName
+        [string] $EnvironmentName,
+
+        [Parameter(ParameterSetName = "Pipeline", Mandatory = $true, ValueFromPipeline = $true)]
+        [PSCustomObject] $InputObject
     )
 
     process {
+        if ([bool]$InputObject) {
+            $BusinessGroupName = $InputObject.BusinessGroupName
+            $EnvironmentName = $InputObject.EnvironmentName
+        }
+
         if ([bool]$BusinessGroupName) {
-            $Script:Context.BusinessGroup = (FirstOrDefaultIfArray (Get-BusinessGroup -Name $BusinessGroupName) $null)
+            $org = (FirstOrDefaultIfArray (Get-BusinessGroup -Name $BusinessGroupName) $null)
+            if ($null -eq $org) {
+                throw "Business Group '$BusinessGroupName' not found."
+            }
+            $Script:Context.BusinessGroup = $org
         }
 
         if ([bool]$EnvironmentName) {
-            $Script:Context.Environment = (FirstOrDefaultIfArray (Get-Environment -Name $EnvironmentName) $null)
+            $ev = (FirstOrDefaultIfArray (Get-Environment -Name $EnvironmentName) $null)
+            if ($null -eq $ev) {
+                throw "Environment '$EnvironmentName' not found."
+            }
+            $Script:Context.Environment = $ev
         }
         else {
-            $Script:Context.Environment = (GetDefaultEnvironment $Script:Context.BusinessGroup.id)
+            $ev = (GetDefaultEnvironment $Script:Context.BusinessGroup.id)
+            if ($null -eq $ev) {
+                throw "Default Environment not found."
+            }
+            $Script:Context.Environment = $ev
         }
         Get-Context
     }
