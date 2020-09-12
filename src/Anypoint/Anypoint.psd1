@@ -12,7 +12,7 @@
     RootModule        = 'Anypoint.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.0.5'
+    ModuleVersion     = '0.0.6'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -75,7 +75,7 @@
         "Get-Context", "Set-Context",
         
         # AccessManagement
-        "Get-BusinessGroup",
+        "Get-BusinessGroup", "New-BusinessGroup",
         "Get-Environment",
         "Get-RoleGroup", "Set-RoleGroup", "Update-RoleGroup", "New-RoleGroup", "Remove-RoleGroup",
         "Get-Context", "Set-Context",

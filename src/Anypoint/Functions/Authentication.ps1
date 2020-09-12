@@ -29,7 +29,7 @@ function Connect-Account {
 
         $Script:Context.Account = (Invoke-AnypointApi -Method Get -Path "/accounts/api/me").user
 
-        $org = $Script:Context.Account.contributorOfOrganizations | Select-Object -First 1
+        $org = $Script:Context.Account.memberOfOrganizations | Select-Object -First 1
         $activeOrganizationId = $Script:Context.Account.properties.cs_auth.activeOrganizationId
         if ([bool]$activeOrganizationId) {
             $org = Get-BusinessGroup -OrganizationId $activeOrganizationId

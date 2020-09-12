@@ -11,8 +11,8 @@ class Exchange {
         return [Exchange]::BasePath + "/assets/$groupId/$assetId"
     }
 
-    static [string] OrganizationAssets($organizationId, $groupId, $assetId) {
-        return [Exchange]::BasePath + "/organizations/$organizationId/assets/$groupId/$assetId"
+    static [string] OrganizationAssets($orgid, $groupId, $assetId) {
+        return [Exchange]::BasePath + "/organizations/$orgid/assets/$groupId/$assetId"
     }
 }
 

@@ -3,28 +3,28 @@ class ApiManager {
 
     static [string] $BasePath = "/apimanager/api/v1"
 
-    static [string] Organizations($organizationId) {
-        return [ApiManager]::BasePath + "/organizations/$organizationId"
+    static [string] Organizations($orgid) {
+        return [ApiManager]::BasePath + "/organizations/$orgid"
     }
 
-    static [string] Environments($organizationId, $environmentsId) {
-        return [ApiManager]::BasePath + "/organizations/$organizationId/environments/$environmentsId"
+    static [string] Environments($orgid, $environmentsId) {
+        return [ApiManager]::BasePath + "/organizations/$orgid/environments/$environmentsId"
     }
 
-    static [string] Apis($organizationId, $environmentsId) {
-        return [ApiManager]::Environments($organizationId, $environmentsId) + "/apis"
+    static [string] Apis($orgid, $environmentsId) {
+        return [ApiManager]::BasePath + "/organizations/$orgid/environments/$environmentsId/apis"
     }
 
-    static [string] Apis($organizationId, $environmentsId, $apiInstanceId) {
-        return [ApiManager]::Environments($organizationId, $environmentsId) + "/apis/$apiInstanceId"
+    static [string] Apis($orgid, $environmentsId, $environmentApiId) {
+        return [ApiManager]::BasePath + "/organizations/$orgid/environments/$environmentsId/apis/$environmentApiId"
     }
 
-    static [string] Policies($organizationId, $environmentsId, $environmentApiId) {
-        return [ApiManager]::Environments($organizationId, $environmentsId) + "/apis/$environmentApiId/policies"
+    static [string] Policies($orgid, $environmentsId, $environmentApiId) {
+        return [ApiManager]::BasePath + "/organizations/$orgid/environments/$environmentsId/apis/$environmentApiId/policies"
     }
 
-    static [string] Alerts($organizationId, $environmentsId, $environmentApiId, $alertId) {
-        return [ApiManager]::Environments($organizationId, $environmentsId) + "/apis/$environmentApiId/alerts/$alertId"
+    static [string] Alerts($orgid, $environmentsId, $environmentApiId, $alertId) {
+        return [ApiManager]::BasePath + "/organizations/$orgid/environments/$environmentsId/apis/$environmentApiId/alerts/$alertId"
     }
 }
 

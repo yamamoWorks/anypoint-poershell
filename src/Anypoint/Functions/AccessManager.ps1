@@ -3,28 +3,36 @@ class AccessManager {
 
     static [string] $BasePath = "/accounts/api"
 
-    static [string] Organizations($organizationId) {
-        return [AccessManager]::BasePath + "/organizations/$organizationId"
+    static [string] Organizations() {
+        return [AccessManager]::BasePath + "/organizations"
     }
 
-    static [string] Environments($organizationId, $environmentsId) {
-        return [AccessManager]::BasePath + "/organizations/$organizationId/environments/$environmentsId"
+    static [string] Organizations($orgid) {
+        return [AccessManager]::BasePath + "/organizations/$orgid"
     }
 
-    static [string] RoleGroups($organizationId) {
-        return [AccessManager]::Organizations($organizationId) + "/rolegroups"
+    static [string] Environments($orgid, $environmentsId) {
+        return [AccessManager]::BasePath + "/organizations/$orgid/environments/$environmentsId"
     }
 
-    static [string] RoleGroups($organizationId, $roleGroupId) {
-        return [AccessManager]::RoleGroups($organizationId) + "/$roleGroupId"
+    static [string] RoleGroups($orgid) {
+        return [AccessManager]::BasePath + "/organizations/$orgid/rolegroups"
     }
 
-    static [string] Users($organizationId) {
-        return [AccessManager]::Organizations($organizationId) + "/users"
+    static [string] RoleGroups($orgid, $roleGroupId) {
+        return [AccessManager]::BasePath + "/organizations/$orgid/rolegroups/$roleGroupId"
     }
 
-    static [string] Users($organizationId, $userId) {
-        return [AccessManager]::Users($organizationId) + "/$userId"
+    static [string] Users($orgid) {
+        return [AccessManager]::BasePath + "/organizations/$orgid/users"
+    }
+
+    static [string] Users($orgid, $userId) {
+        return [AccessManager]::BasePath + "/organizations/$orgid/users/$userId"
+    }
+
+    static [string] Me() {
+        return [AccessManager]::BasePath + "/me"
     }
 }
 
@@ -52,6 +60,27 @@ function Get-BusinessGroup {
         }
     }
 }
+
+function New-BusinessGroup {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)][string] $Name,
+        [Parameter(Mandatory = $true)][guid]   $ParentOrganizationId,
+        [Parameter(Mandatory = $true)][guid]   $OwnerId
+    )
+
+    process {
+        $object = @{ 
+            name                 = $Name
+            parentOrganizationId = $ParentOrganizationId
+            ownerId              = $OwnerId
+        }
+
+        $path = [AccessManager]::Organizations()
+        Invoke-AnypointApi -Method Post -Path $path -Body $object
+    }
+}
+
 
 function Get-Environment {
     [CmdletBinding(DefaultParameterSetName = "Query")]
@@ -335,7 +364,7 @@ function Remove-User {
 
 
 Export-ModuleMember -Function `
-    Get-BusinessGroup, `
+    Get-BusinessGroup, New-BusinessGroup, `
     Get-Environment, `
     Get-RoleGroup, Set-RoleGroup, Update-RoleGroup, New-RoleGroup, Remove-RoleGroup, `
     Get-Context, Set-Context, `
