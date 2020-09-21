@@ -12,12 +12,12 @@ Retrieves a list of organizations.
 
 ## SYNTAX
 
-### ByName (Default)
+### Multiple (Default)
 ```
 Get-ApBusinessGroup [-Name <String>] [<CommonParameters>]
 ```
 
-### Id
+### Single
 ```
 Get-ApBusinessGroup -OrganizationId <Guid> [<CommonParameters>]
 ```
@@ -35,28 +35,28 @@ PS C:\> Get-ApBusinessGroup -OrganizationId 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx
 
 ## PARAMETERS
 
-### -OrganizationId
+### -Name
 
 ```yaml
-Type: Guid
-Parameter Sets: Id
+Type: String
+Parameter Sets: Multiple
 Aliases:
 
-Required: True
+Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Name
+### -OrganizationId
 
 ```yaml
-Type: String
-Parameter Sets: ByName
+Type: Guid
+Parameter Sets: Single
 Aliases:
 
-Required: False
+Required: True
 Position: Named
 Default value: None
 Accept pipeline input: False

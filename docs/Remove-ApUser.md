@@ -12,14 +12,8 @@ schema: 2.0.0
 
 ## SYNTAX
 
-### Id
 ```
-Remove-ApUser -UserId <Guid[]> [-OrganizationId <Guid>] [<CommonParameters>]
-```
-
-### Pipeline
-```
-Remove-ApUser -User <Object> [<CommonParameters>]
+Remove-ApUser [-UserId] <Guid[]> [[-OrganizationId] <Guid>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -36,13 +30,13 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### -OrganizationId
-{{ Fill OrganizationId Description }}
+### -Confirm
+Prompts you for confirmation before running the cmdlet.
 
 ```yaml
-Type: Guid
-Parameter Sets: Id
-Aliases:
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: cf
 
 Required: False
 Position: Named
@@ -51,18 +45,18 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -User
-{{ Fill User Description }}
+### -OrganizationId
+{{ Fill OrganizationId Description }}
 
 ```yaml
-Type: Object
-Parameter Sets: Pipeline
+Type: Guid
+Parameter Sets: (All)
 Aliases:
 
-Required: True
-Position: Named
+Required: False
+Position: 1
 Default value: None
-Accept pipeline input: True (ByValue)
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
@@ -71,10 +65,25 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Guid[]
-Parameter Sets: Id
+Parameter Sets: (All)
 Aliases:
 
 Required: True
+Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WhatIf
+Shows what would happen if the cmdlet runs. The cmdlet is not run.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: wi
+
+Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False

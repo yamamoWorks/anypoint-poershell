@@ -12,15 +12,9 @@ schema: 2.0.0
 
 ## SYNTAX
 
-### Query (Default)
 ```
-Get-ApApi [-AssetId <String>] [-AutodiscoveryApiName <String>] [-AutodiscoveryInstanceName <String>]
- [-EnvironmentId <Guid>] [-OrganizationId <Guid>] [<CommonParameters>]
-```
-
-### Pipeline
-```
-Get-ApApi -Environment <Object> [<CommonParameters>]
+Get-ApApi [[-AssetId] <String>] [[-AutodiscoveryApiName] <String>] [[-AutodiscoveryInstanceName] <String>]
+ [[-EnvironmentId] <Guid>] [[-OrganizationId] <Guid>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -42,11 +36,11 @@ PS C:\> {{ Add example code here }}
 
 ```yaml
 Type: String
-Parameter Sets: Query
+Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -57,11 +51,11 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: Query
+Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -72,28 +66,13 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: Query
+Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
+Position: 2
 Default value: None
 Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Environment
-{{ Fill Environment Description }}
-
-```yaml
-Type: Object
-Parameter Sets: Pipeline
-Aliases:
-
-Required: True
-Position: Named
-Default value: None
-Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
@@ -102,11 +81,11 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Guid
-Parameter Sets: Query
+Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
+Position: 3
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -117,11 +96,11 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Guid
-Parameter Sets: Query
+Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
+Position: 4
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

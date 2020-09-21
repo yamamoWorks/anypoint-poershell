@@ -12,10 +12,16 @@ schema: 2.0.0
 
 ## SYNTAX
 
+### Pipeline
 ```
-Set-ApUser [-UserId] <Guid> [[-FirstName] <String>] [[-LastName] <String>] [[-Email] <String>]
- [[-PhoneNumber] <String>] [[-Enabled] <Boolean>] [[-Properties] <Object>] [[-OrganizationId] <Guid>]
+Set-ApUser -UserId <Guid> -InputObject <Object> [-OrganizationId <Guid>] [-WhatIf] [-Confirm]
  [<CommonParameters>]
+```
+
+### Params
+```
+Set-ApUser -UserId <Guid> [-FirstName <String>] [-LastName <String>] [-Email <String>] [-PhoneNumber <String>]
+ [-Enabled <Boolean>] [-Properties <Object>] [-OrganizationId <Guid>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -32,16 +38,31 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
+### -Confirm
+Prompts you for confirmation before running the cmdlet.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: cf
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Email
 {{ Fill Email Description }}
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: Params
 Aliases:
 
 Required: False
-Position: 3
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -52,11 +73,11 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Boolean
-Parameter Sets: (All)
+Parameter Sets: Params
 Aliases:
 
 Required: False
-Position: 5
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -67,13 +88,28 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: Params
 Aliases:
 
 Required: False
-Position: 1
+Position: Named
 Default value: None
 Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -InputObject
+{{ Fill InputObject Description }}
+
+```yaml
+Type: Object
+Parameter Sets: Pipeline
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
@@ -82,11 +118,11 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: Params
 Aliases:
 
 Required: False
-Position: 2
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -101,7 +137,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 7
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -112,11 +148,11 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: Params
 Aliases:
 
 Required: False
-Position: 4
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -127,11 +163,11 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Object
-Parameter Sets: (All)
+Parameter Sets: Params
 Aliases:
 
 Required: False
-Position: 6
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -146,7 +182,22 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 0
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WhatIf
+Shows what would happen if the cmdlet runs. The cmdlet is not run.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: wi
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

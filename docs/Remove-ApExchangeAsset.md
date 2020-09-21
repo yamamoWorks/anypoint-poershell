@@ -12,15 +12,9 @@ schema: 2.0.0
 
 ## SYNTAX
 
-### Id
 ```
-Remove-ApExchangeAsset [-GroupId <Guid>] -AssetId <String> [-HardDelete] [-OrganizationId <Guid>]
- [<CommonParameters>]
-```
-
-### Pipeline
-```
-Remove-ApExchangeAsset -Asset <Object> [<CommonParameters>]
+Remove-ApExchangeAsset [-AssetId] <String> [-HardDelete] [[-OrganizationId] <Guid>] [[-GroupId] <Guid>]
+ [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -37,30 +31,30 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### -Asset
-{{ Fill Asset Description }}
-
-```yaml
-Type: Object
-Parameter Sets: Pipeline
-Aliases:
-
-Required: True
-Position: Named
-Default value: None
-Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
 ### -AssetId
 {{ Fill AssetId Description }}
 
 ```yaml
 Type: String
-Parameter Sets: Id
+Parameter Sets: (All)
 Aliases:
 
 Required: True
+Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Confirm
+Prompts you for confirmation before running the cmdlet.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: cf
+
+Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False
@@ -72,11 +66,11 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Guid
-Parameter Sets: Id
+Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
+Position: 2
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -87,7 +81,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: Id
+Parameter Sets: (All)
 Aliases:
 
 Required: False
@@ -102,8 +96,23 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Guid
-Parameter Sets: Id
+Parameter Sets: (All)
 Aliases:
+
+Required: False
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WhatIf
+Shows what would happen if the cmdlet runs. The cmdlet is not run.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: wi
 
 Required: False
 Position: Named

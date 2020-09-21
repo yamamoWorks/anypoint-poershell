@@ -12,14 +12,9 @@ schema: 2.0.0
 
 ## SYNTAX
 
-### Query
 ```
-Get-ApApiPolicy -ApiInstanceId <Int32> [-EnvironmentId <Guid>] [-OrganizationId <Guid>] [<CommonParameters>]
-```
-
-### Pipeline
-```
-Get-ApApiPolicy -ApiInstance <Object> [<CommonParameters>]
+Get-ApApiPolicy [-ApiInstanceId] <Int32> [[-EnvironmentId] <Guid>] [[-OrganizationId] <Guid>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -36,31 +31,16 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### -ApiInstance
-{{ Fill ApiInstance Description }}
-
-```yaml
-Type: Object
-Parameter Sets: Pipeline
-Aliases:
-
-Required: True
-Position: Named
-Default value: None
-Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
 ### -ApiInstanceId
 {{ Fill ApiInstanceId Description }}
 
 ```yaml
 Type: Int32
-Parameter Sets: Query
+Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: Named
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -71,11 +51,11 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Guid
-Parameter Sets: Query
+Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -86,11 +66,11 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Guid
-Parameter Sets: Query
+Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
+Position: 2
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

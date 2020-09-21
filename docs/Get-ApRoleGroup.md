@@ -12,14 +12,14 @@ schema: 2.0.0
 
 ## SYNTAX
 
-### Query (Default)
+### Multiple (Default)
 ```
-Get-ApRoleGroup [-Name <String>] [-OrganizationId <Guid>] [-BusinessGroup <PSObject>] [<CommonParameters>]
+Get-ApRoleGroup [-Name <String>] [-OrganizationId <Guid>] [<CommonParameters>]
 ```
 
-### Id
+### Single
 ```
-Get-ApRoleGroup -RoleGroupId <Guid> [-OrganizationId <Guid>] [-BusinessGroup <PSObject>] [<CommonParameters>]
+Get-ApRoleGroup -RoleGroupId <Guid> [-OrganizationId <Guid>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -36,27 +36,12 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### -BusinessGroup
-{{ Fill BusinessGroup Description }}
-
-```yaml
-Type: PSObject
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
 ### -Name
 {{ Fill Name Description }}
 
 ```yaml
 Type: String
-Parameter Sets: Query
+Parameter Sets: Multiple
 Aliases:
 
 Required: False
@@ -86,7 +71,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Guid
-Parameter Sets: Id
+Parameter Sets: Single
 Aliases:
 
 Required: True

@@ -13,9 +13,9 @@ schema: 2.0.0
 ## SYNTAX
 
 ```
-New-ApExchangeAsset [-Classifier] <String> [-Name] <String> [-AssetId] <String> [-Version] <String>
- [[-OrganizationId] <Guid>] [[-GroupId] <Guid>] -ApiVersion <String> [-Main <String>] -AssetFilePath <String>
- [<CommonParameters>]
+New-ApExchangeAsset [-AssetId] <String> [-Version] <String> [-Name] <String> [-Classifier] <String>
+ [[-OrganizationId] <Guid>] [[-GroupId] <Guid>] [-WhatIf] [-Confirm] -ApiVersion <String> [-Main <String>]
+ -AssetFilePath <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -71,7 +71,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 2
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -87,7 +87,22 @@ Aliases:
 Accepted values: RAML-Fragment, RAML, OAS, WSDL, HTTP, Custom
 
 Required: True
-Position: 0
+Position: 3
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Confirm
+Prompts you for confirmation before running the cmdlet.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: cf
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -132,7 +147,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 1
+Position: 2
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -162,7 +177,22 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 3
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WhatIf
+Shows what would happen if the cmdlet runs. The cmdlet is not run.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: wi
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
