@@ -93,7 +93,7 @@ function BindModel {
         [hashtable] $Mappings = @{}
     )
     
-    $keyPairs = $Properties `
+    $keyPairs = $Properties + $Mappings.Keys `
     | ForEach-Object { @{ PropertyName = $_; ParameterName = (IfNull $Mappings[$_] $_) } } `
     | Where-Object { $_.ParameterName -iin $BoundParameters.Keys }
 
@@ -101,7 +101,10 @@ function BindModel {
         $value = $BoundParameters[$keyPair.ParameterName]
         if ($value -is [SecureString]) {
             $value = (ConvertToPlainText $value)
-        }                
+        }
+        elseif ($value -is [switch]) {
+            $value = $value.ToBool()
+        }
         $Model.($keyPair.PropertyName) = $value
     }
 }

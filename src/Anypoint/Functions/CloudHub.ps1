@@ -29,10 +29,15 @@ function Get-CloudHubAlert {
         [Parameter(ParameterSetName = "Query", Mandatory = $false)][string] $ApplicationName,
         [Parameter(ParameterSetName = "Query", Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id,
         [Parameter(ParameterSetName = "Query", Mandatory = $false)][int] $Offset,
-        [Parameter(ParameterSetName = "Query", Mandatory = $false)][int] $Limit
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][int] $Limit,
+        [Parameter(ParameterSetName = "Pipeline", Mandatory = $true, ValueFromPipeline = $true)][object] $Environment
     )
 
     process {
+        if ([bool]$Environment) {
+            $EnvironmentId = GetRequiredValue $Environment "id"
+        }
+
         $params = @{
             resource = $ApplicationName
             offset   = $PSBoundParameters["Offset"]
@@ -54,7 +59,7 @@ function New-CloudHubApplication {
         [Parameter(ParameterSetName = "Params", Mandatory = $false)][int] $Workers = 1,
         [Parameter(ParameterSetName = "Params", Mandatory = $false)][ValidatePattern("\d*\.\d*\.\d*")][string] $RuntimeVersion,
         [Parameter(ParameterSetName = "Params", Mandatory = $false)][ValidateSet( "us-east-1", "us-east-2", "us-west-1", "us-west-2", "ca-central-1", "eu-west-1", "eu-central-1", "eu-west-2", "ap-northeast-1", "ap-southeast-1", "ap-southeast-2", "sa-east-1")] $Region,
-        [Parameter(ParameterSetName = "Params", Mandatory = $false)][switch] $AutoRestart,
+        [Parameter(ParameterSetName = "Params", Mandatory = $false)][switch] $AutoRestartWhenNotResponding,
         [Parameter(ParameterSetName = "Params", Mandatory = $false)][switch] $PersistentQueues,
         [Parameter(ParameterSetName = "Params", Mandatory = $false)][switch] $EncryptPersistentQueues,
         [Parameter(ParameterSetName = "Params", Mandatory = $false)][switch] $DisableCloudHubLog,
@@ -76,45 +81,31 @@ function New-CloudHubApplication {
             $app.appInfoJson = $AppInfoJson | ConvertTo-Json
         }
         else {
-            $appInfo = @{
-                domain  = $Domain
-                workers = @{
-                    amount = $Workers
-                    type   = @{
-                        name = $Script:WorkerType[$WorkerSize]
-                    }
-                }
+            $appInfo = @{ domain = $Domain }
+
+            BindModel `
+                -Model $appInfo `
+                -BoundParameters $PSBoundParameters `
+                -Properties "region", "persistentQueues", "properties", "logLevels" `
+                -Mappings @{
+                "muleVersion"               = "RuntimeVersion"
+                "monitoringAutoRestart"     = "AutoRestartWhenNotResponding"
+                "persistentQueuesEncrypted" = "EncryptPersistentQueues"
+                "loggingCustomLog4JEnabled" = "DisableCloudHubLog"
+                "staticIPsEnabled"          = "UseStaticIP"
             }
 
             if ([bool]$RuntimeVersion) {
                 $appInfo.muleVersion = @{ version = $RuntimeVersion }
             }
-            if ([bool]$Region) {
-                $appInfo.region = $Region
+            if ([bool]$WorkerSize) {
+                $appInfo.workers += @{ type = @{ name = $Script:WorkerType[$WorkerSize] } }
             }
-            if ([bool]$AutoRestart) {
-                $appInfo.monitoringAutoRestart = $true
+            if ([bool]$Workers) {
+                $appInfo.workers += @{ amount = $Workers }
             }
-            if ([bool]$PersistentQueues) {
-                $appInfo.persistentQueues = $true
-            }
-            if ([bool]$EncryptPersistentQueues) {
-                $appInfo.persistentQueuesEncrypted = $true
-            }
-            if ([bool]$DisableCloudHubLog) {
-                $appInfo.loggingCustomLog4JEnabled = $true
-            }
-            if ([bool]$UseObjectStoreV2) {
-                $appInfo.objectStoreV1 = $false
-            }
-            if ([bool]$Properties) {
-                $appInfo.properties = $Properties
-            }
-            if ([bool]$LogLevels) {
-                $appInfo.logLevels = $LogLevels
-            }
-            if ([bool]$UseStaticIP) {
-                $appInfo.staticIPsEnabled = $true
+            if ($UseObjectStoreV2.IsPresent) {
+                $appInfo.objectStoreV1 = $false                               
             }
 
             $app.appInfoJson = $appInfo | ConvertTo-Json
@@ -125,16 +116,82 @@ function New-CloudHubApplication {
     }
 }
 
+function Set-CloudHubApplication {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)][string] $Domain,
+        [Parameter(Mandatory = $false)][System.IO.FileInfo] $JarFile,
+        [Parameter(Mandatory = $false)][ValidateSet(0.1, 0.2, 1, 2, 4, 8, 16)] $WorkerSize,
+        [Parameter(Mandatory = $false)][int] $Workers,
+        [Parameter(Mandatory = $false)][ValidatePattern("\d*\.\d*\.\d*")][string] $RuntimeVersion,
+        [Parameter(Mandatory = $false)][ValidateSet( "us-east-1", "us-east-2", "us-west-1", "us-west-2", "ca-central-1", "eu-west-1", "eu-central-1", "eu-west-2", "ap-northeast-1", "ap-southeast-1", "ap-southeast-2", "sa-east-1")] $Region,
+        [Parameter(Mandatory = $false)][bool] $AutoRestartWhenNotResponding,
+        [Parameter(Mandatory = $false)][bool] $PersistentQueues,
+        [Parameter(Mandatory = $false)][bool] $EncryptPersistentQueues,
+        [Parameter(Mandatory = $false)][bool] $DisableCloudHubLog,
+        [Parameter(Mandatory = $false)][bool] $UseObjectStoreV2,
+        [Parameter(Mandatory = $false)][object] $Properties,
+        [Parameter(Mandatory = $false)][object[]] $LogLevels,
+        [Parameter(Mandatory = $false)][bool] $UseStaticIP,
+        [Parameter(Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id
+    )
+    
+    process {
+        $app = @{}
+
+        if ([bool]$JarFile) {
+            $app.file = $JarFile
+        }
+
+        $appInfo = @{ }
+        
+        BindModel `
+            -Model $appInfo `
+            -BoundParameters $PSBoundParameters `
+            -Properties "region", "persistentQueues", "properties", "logLevels" `
+            -Mappings @{
+            "muleVersion"               = "RuntimeVersion"
+            "monitoringAutoRestart"     = "AutoRestartWhenNotResponding"
+            "persistentQueuesEncrypted" = "EncryptPersistentQueues"
+            "loggingCustomLog4JEnabled" = "DisableCloudHubLog"
+            "staticIPsEnabled"          = "UseStaticIP"
+        }
+
+        if ([bool]$RuntimeVersion) {
+            $appInfo.muleVersion = @{ version = $RuntimeVersion }
+        }
+        if ([bool]$WorkerSize) {
+            $appInfo.workers += @{ type = @{ name = $Script:WorkerType[$WorkerSize] } }
+        }
+        if ([bool]$Workers) {
+            $appInfo.workers += @{ amount = $Workers }
+        }
+        if ($PSBoundParameters.ContainsKey("UseObjectStoreV2")) {
+            $appInfo.objectStoreV1 = -not $UseObjectStoreV2
+        }
+
+        $app.appInfoJson = $appInfo | ConvertTo-Json
+
+        $path = [CloudHub]::Applications($Domain)
+        Invoke-AnypointApi -Method Put -Path $path -Body $app -EnvironmentId $EnvironmentId -MultipartForm
+    }
+}
+
 function Get-CloudHubApplication {
     [CmdletBinding()]
     param (
         [Parameter(ParameterSetName = "Id", Mandatory = $true)][string] $Domain,
         [Parameter(ParameterSetName = "Query", Mandatory = $false)][switch] $RetrieveStatistics,
         [Parameter(ParameterSetName = "Query", Mandatory = $false)][int]    $Period,
-        [Parameter(ParameterSetName = "Query", Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id
+        [Parameter(ParameterSetName = "Query", Mandatory = $false)][guid] $EnvironmentId = $Script:Context.Environment.id,
+        [Parameter(ParameterSetName = "Pipeline", Mandatory = $true, ValueFromPipeline = $true)][object] $Environment
     )
 
     process {
+        if ([bool]$Environment) {
+            $EnvironmentId = GetRequiredValue $Environment "id"
+        }
+
         $params = @{
             retrieveStatistics = $RetrieveStatistics
             period             = $PSBoundParameters["Period"]
@@ -227,5 +284,5 @@ function ControlCloudHubApplication {
 
 Export-ModuleMember -Function `
     Get-CloudHubAlert, `
-    Get-CloudHubApplication, New-CloudHubApplication, `
+    Get-CloudHubApplication, New-CloudHubApplication, Set-CloudHubApplication, `
     Start-CloudHubApplication, Stop-CloudHubApplication, Restart-CloudHubApplication, Remove-CloudHubApplication, Update-CloudHubApplicationRuntimeVersion
