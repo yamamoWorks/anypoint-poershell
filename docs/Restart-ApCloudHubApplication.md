@@ -1,25 +1,19 @@
 ---
 external help file: Anypoint-help.xml
 Module Name: Anypoint
-online version:
+online version: https://bit.ly/3kbIzKs
 schema: 2.0.0
 ---
 
-# Get-ApRoleGroup
+# Restart-ApCloudHubApplication
 
 ## SYNOPSIS
 {{ Fill in the Synopsis }}
 
 ## SYNTAX
 
-### Query (Default)
 ```
-Get-ApRoleGroup [-Name <String>] [-OrganizationId <Guid>] [-BusinessGroup <PSObject>] [<CommonParameters>]
-```
-
-### Id
-```
-Get-ApRoleGroup -RoleGroupId <Guid> [-OrganizationId <Guid>] [-BusinessGroup <PSObject>] [<CommonParameters>]
+Restart-ApCloudHubApplication [-Domains] <String[]> [[-EnvironmentId] <Guid>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -36,63 +30,33 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### -Name
-{{ Fill Name Description }}
+### -Domains
+{{ Fill Domains Description }}
 
 ```yaml
-Type: String
-Parameter Sets: Query
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -OrganizationId
-{{ Fill OrganizationId Description }}
-
-```yaml
-Type: Guid
+Type: String[]
 Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -RoleGroupId
-{{ Fill RoleGroupId Description }}
-
-```yaml
-Type: Guid
-Parameter Sets: Id
 Aliases:
 
 Required: True
-Position: Named
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -BusinessGroup
-{{ Fill BusinessGroup Description }}
+### -EnvironmentId
+{{ Fill EnvironmentId Description }}
 
 ```yaml
-Type: PSObject
+Type: Guid
 Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
+Position: 1
 Default value: None
-Accept pipeline input: True (ByValue)
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
@@ -101,7 +65,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### System.Management.Automation.PSObject
+### None
 
 ## OUTPUTS
 

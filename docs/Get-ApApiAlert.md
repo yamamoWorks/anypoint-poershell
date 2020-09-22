@@ -12,9 +12,15 @@ schema: 2.0.0
 
 ## SYNTAX
 
+### Query
 ```
 Get-ApApiAlert [-ApiInstanceId] <Int32> [[-AlertId] <Guid>] [[-EnvironmentId] <Guid>]
  [[-OrganizationId] <Guid>] [<CommonParameters>]
+```
+
+### Pipeline
+```
+Get-ApApiAlert -ApiInstance <Object> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -36,7 +42,7 @@ PS C:\> {{ Add example code here }}
 
 ```yaml
 Type: Guid
-Parameter Sets: (All)
+Parameter Sets: Query
 Aliases:
 
 Required: False
@@ -51,7 +57,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Int32
-Parameter Sets: (All)
+Parameter Sets: Query
 Aliases:
 
 Required: True
@@ -66,7 +72,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Guid
-Parameter Sets: (All)
+Parameter Sets: Query
 Aliases:
 
 Required: False
@@ -81,13 +87,28 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Guid
-Parameter Sets: (All)
+Parameter Sets: Query
 Aliases:
 
 Required: False
 Position: 3
 Default value: None
 Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ApiInstance
+{{ Fill ApiInstance Description }}
+
+```yaml
+Type: Object
+Parameter Sets: Pipeline
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 

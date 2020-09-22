@@ -1,26 +1,19 @@
 ---
 external help file: Anypoint-help.xml
 Module Name: Anypoint
-online version:
+online version: https://bit.ly/3kbIzKs
 schema: 2.0.0
 ---
 
-# Get-ApApiInstance
+# New-ApBusinessGroup
 
 ## SYNOPSIS
 {{ Fill in the Synopsis }}
 
 ## SYNTAX
 
-### Query
 ```
-Get-ApApiInstance [-ApiInstanceId] <Int32> [-IncludeTlsContexts] [[-EnvironmentId] <Guid>]
- [[-OrganizationId] <Guid>] [<CommonParameters>]
-```
-
-### Pipeline
-```
-Get-ApApiInstance -Api <Object> [<CommonParameters>]
+New-ApBusinessGroup [-Name] <String> [-ParentOrganizationId] <Guid> [-OwnerId] <Guid> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -37,12 +30,12 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### -ApiInstanceId
-{{ Fill ApiInstanceId Description }}
+### -Name
+{{ Fill Name Description }}
 
 ```yaml
-Type: Int32
-Parameter Sets: Query
+Type: String
+Parameter Sets: (All)
 Aliases:
 
 Required: True
@@ -52,61 +45,31 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -EnvironmentId
-{{ Fill EnvironmentId Description }}
+### -OwnerId
+{{ Fill OwnerId Description }}
 
 ```yaml
 Type: Guid
-Parameter Sets: Query
+Parameter Sets: (All)
 Aliases:
 
-Required: False
-Position: 1
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -OrganizationId
-{{ Fill OrganizationId Description }}
-
-```yaml
-Type: Guid
-Parameter Sets: Query
-Aliases:
-
-Required: False
+Required: True
 Position: 2
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Api
-{{ Fill Api Description }}
+### -ParentOrganizationId
+{{ Fill ParentOrganizationId Description }}
 
 ```yaml
-Type: Object
-Parameter Sets: Pipeline
+Type: Guid
+Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: Named
-Default value: None
-Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
-### -IncludeTlsContexts
-{{ Fill IncludeTlsContexts Description }}
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Query
-Aliases:
-
-Required: False
-Position: Named
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -117,7 +80,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### System.Object
+### None
 
 ## OUTPUTS
 

@@ -12,15 +12,16 @@ schema: 2.0.0
 
 ## SYNTAX
 
-### Multiple (Default)
+### Query (Default)
 ```
 Get-ApEnvironment [-Type <String>] [-IsProduction <Object>] [-Name <String>] [-OrganizationId <Guid>]
- [<CommonParameters>]
+ [-BusinessGroup <PSObject>] [<CommonParameters>]
 ```
 
-### Single
+### Id
 ```
-Get-ApEnvironment -EnvironmentId <Guid> [-OrganizationId <Guid>] [<CommonParameters>]
+Get-ApEnvironment -EnvironmentId <Guid> [-OrganizationId <Guid>] [-BusinessGroup <PSObject>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -42,7 +43,7 @@ PS C:\> {{ Add example code here }}
 
 ```yaml
 Type: Guid
-Parameter Sets: Single
+Parameter Sets: Id
 Aliases:
 
 Required: True
@@ -57,7 +58,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Object
-Parameter Sets: Multiple
+Parameter Sets: Query
 Aliases:
 Accepted values: True, False, 
 
@@ -73,7 +74,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: Multiple
+Parameter Sets: Query
 Aliases:
 
 Required: False
@@ -103,7 +104,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: Multiple
+Parameter Sets: Query
 Aliases:
 Accepted values: Production, Sandbox, Design
 
@@ -111,6 +112,21 @@ Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -BusinessGroup
+{{ Fill BusinessGroup Description }}
+
+```yaml
+Type: PSObject
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 

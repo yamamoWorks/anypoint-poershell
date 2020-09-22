@@ -12,14 +12,14 @@ schema: 2.0.0
 
 ## SYNTAX
 
-### Multiple (Default)
+### Query (Default)
 ```
-Get-ApUser [-Type <String>] [-OrganizationId <Guid>] [-Offset <Int32>] [-Limit <Int32>] [<CommonParameters>]
+Get-ApUser [-Type <String>] [-Offset <Int32>] [-Limit <Int32>] [-OrganizationId <Guid>] [<CommonParameters>]
 ```
 
-### Single
+### Id
 ```
-Get-ApUser -UserId <Guid> [<CommonParameters>]
+Get-ApUser -UserId <Guid> [-OrganizationId <Guid>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -41,7 +41,7 @@ PS C:\> {{ Add example code here }}
 
 ```yaml
 Type: Int32
-Parameter Sets: Multiple
+Parameter Sets: Query
 Aliases:
 
 Required: False
@@ -56,7 +56,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Int32
-Parameter Sets: Multiple
+Parameter Sets: Query
 Aliases:
 
 Required: False
@@ -71,7 +71,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Guid
-Parameter Sets: Multiple
+Parameter Sets: (All)
 Aliases:
 
 Required: False
@@ -86,7 +86,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: Multiple
+Parameter Sets: Query
 Aliases:
 Accepted values: Host, Proxy, All
 
@@ -102,7 +102,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Guid
-Parameter Sets: Single
+Parameter Sets: Id
 Aliases:
 
 Required: True

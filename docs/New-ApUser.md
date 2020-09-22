@@ -12,16 +12,15 @@ schema: 2.0.0
 
 ## SYNTAX
 
-### Pipeline
-```
-New-ApUser -InputObject <Object> [-OrganizationId <Guid>] [-WhatIf] [-Confirm] [<CommonParameters>]
-```
-
 ### Params
 ```
 New-ApUser -Username <String> [-FirstName <String>] [-LastName <String>] [-Email <String>]
- [-PhoneNumber <String>] -Password <SecureString> [-OrganizationId <Guid>] [-WhatIf] [-Confirm]
- [<CommonParameters>]
+ [-PhoneNumber <String>] -Password <SecureString> [-OrganizationId <Guid>] [<CommonParameters>]
+```
+
+### Pipeline
+```
+New-ApUser -InputObject <Object> [-OrganizationId <Guid>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -37,21 +36,6 @@ PS C:\> {{ Add example code here }}
 {{ Add example description here }}
 
 ## PARAMETERS
-
-### -Confirm
-Prompts you for confirmation before running the cmdlet.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: cf
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
 
 ### -Email
 {{ Fill Email Description }}
@@ -167,21 +151,6 @@ Parameter Sets: Params
 Aliases:
 
 Required: True
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: wi
-
-Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False

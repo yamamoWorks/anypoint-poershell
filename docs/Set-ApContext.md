@@ -22,6 +22,11 @@ Set-ApContext -BusinessGroupName <String> [<CommonParameters>]
 Set-ApContext [-BusinessGroupName <String>] -EnvironmentName <String> [<CommonParameters>]
 ```
 
+### Pipeline
+```
+Set-ApContext -InputObject <PSObject> [<CommonParameters>]
+```
+
 ## DESCRIPTION
 {{ Fill in the Description }}
 
@@ -75,6 +80,21 @@ Required: True
 Position: Named
 Default value: None
 Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -InputObject
+{{ Fill InputObject Description }}
+
+```yaml
+Type: PSObject
+Parameter Sets: Pipeline
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 

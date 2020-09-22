@@ -1,7 +1,7 @@
 ---
 external help file: Anypoint-help.xml
 Module Name: Anypoint
-online version:
+online version: https://bit.ly/3kbIzKs
 schema: 2.0.0
 ---
 
@@ -22,7 +22,7 @@ Get-ApContext [<CommonParameters>]
 ## EXAMPLES
 
 ### Example 1
-```powershell
+```
 PS C:\> {{ Add example code here }}
 ```
 
@@ -36,7 +36,6 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## INPUTS
 
 ### None
-
 ## OUTPUTS
 
 ### System.Object

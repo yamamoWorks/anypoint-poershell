@@ -12,12 +12,12 @@ schema: 2.0.0
 
 ## SYNTAX
 
-### Single
+### Id
 ```
 Get-ApExchangeAsset [-GroupId <Guid>] -AssetId <String> [<CommonParameters>]
 ```
 
-### Multiple
+### Query
 ```
 Get-ApExchangeAsset [-Domain <String>] [-OrganizationIds <Guid[]>] [-RuntimeVersion <String>] [-Offset <Int32>]
  [-Limit <Int32>] [<CommonParameters>]
@@ -42,7 +42,7 @@ PS C:\> {{ Add example code here }}
 
 ```yaml
 Type: String
-Parameter Sets: Single
+Parameter Sets: Id
 Aliases:
 
 Required: True
@@ -57,7 +57,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: Multiple
+Parameter Sets: Query
 Aliases:
 
 Required: False
@@ -72,7 +72,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Guid
-Parameter Sets: Single
+Parameter Sets: Id
 Aliases:
 
 Required: False
@@ -87,7 +87,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Int32
-Parameter Sets: Multiple
+Parameter Sets: Query
 Aliases:
 
 Required: False
@@ -102,7 +102,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Int32
-Parameter Sets: Multiple
+Parameter Sets: Query
 Aliases:
 
 Required: False
@@ -117,7 +117,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: Guid[]
-Parameter Sets: Multiple
+Parameter Sets: Query
 Aliases:
 
 Required: False
@@ -132,7 +132,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: Multiple
+Parameter Sets: Query
 Aliases:
 
 Required: False

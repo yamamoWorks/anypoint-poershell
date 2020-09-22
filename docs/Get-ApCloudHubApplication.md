@@ -1,26 +1,30 @@
 ---
 external help file: Anypoint-help.xml
 Module Name: Anypoint
-online version:
+online version: https://bit.ly/3kbIzKs
 schema: 2.0.0
 ---
 
-# Get-ApApiInstance
+# Get-ApCloudHubApplication
 
 ## SYNOPSIS
 {{ Fill in the Synopsis }}
 
 ## SYNTAX
 
+### Id
+```
+Get-ApCloudHubApplication -Domain <String> [<CommonParameters>]
+```
+
 ### Query
 ```
-Get-ApApiInstance [-ApiInstanceId] <Int32> [-IncludeTlsContexts] [[-EnvironmentId] <Guid>]
- [[-OrganizationId] <Guid>] [<CommonParameters>]
+Get-ApCloudHubApplication [-RetrieveStatistics] [-Period <Int32>] [-EnvironmentId <Guid>] [<CommonParameters>]
 ```
 
 ### Pipeline
 ```
-Get-ApApiInstance -Api <Object> [<CommonParameters>]
+Get-ApCloudHubApplication -Environment <Object> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -37,53 +41,23 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### -ApiInstanceId
-{{ Fill ApiInstanceId Description }}
+### -Domain
+{{ Fill Domain Description }}
 
 ```yaml
-Type: Int32
-Parameter Sets: Query
+Type: String
+Parameter Sets: Id
 Aliases:
 
 Required: True
-Position: 0
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -EnvironmentId
-{{ Fill EnvironmentId Description }}
-
-```yaml
-Type: Guid
-Parameter Sets: Query
-Aliases:
-
-Required: False
-Position: 1
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -OrganizationId
-{{ Fill OrganizationId Description }}
-
-```yaml
-Type: Guid
-Parameter Sets: Query
-Aliases:
-
-Required: False
-Position: 2
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Api
-{{ Fill Api Description }}
+### -Environment
+{{ Fill Environment Description }}
 
 ```yaml
 Type: Object
@@ -97,8 +71,38 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
-### -IncludeTlsContexts
-{{ Fill IncludeTlsContexts Description }}
+### -EnvironmentId
+{{ Fill EnvironmentId Description }}
+
+```yaml
+Type: Guid
+Parameter Sets: Query
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Period
+{{ Fill Period Description }}
+
+```yaml
+Type: Int32
+Parameter Sets: Query
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -RetrieveStatistics
+{{ Fill RetrieveStatistics Description }}
 
 ```yaml
 Type: SwitchParameter

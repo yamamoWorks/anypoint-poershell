@@ -23,6 +23,11 @@ Get-ApCloudHubAlert [-ApplicationName <String>] [-EnvironmentId <Guid>] [-Offset
  [<CommonParameters>]
 ```
 
+### Pipeline
+```
+Get-ApCloudHubAlert -Environment <Object> [<CommonParameters>]
+```
+
 ## DESCRIPTION
 {{ Fill in the Description }}
 
@@ -109,6 +114,21 @@ Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Environment
+{{ Fill Environment Description }}
+
+```yaml
+Type: Object
+Parameter Sets: Pipeline
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
